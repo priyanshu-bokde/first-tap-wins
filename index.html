@@ -1,0 +1,764 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>First Tap Wins | Play Fast</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="background-glow glow-one"></div>
+    <div class="background-glow glow-two"></div>
+
+    <header class="navbar">
+        <a href="#" class="logo">
+            <span class="logo-icon">⚡</span>
+            FIRST<span>TAP</span>WINS
+        </a>
+
+        <nav>
+            <a href="#how">How to Play</a>
+            <a href="#features">Features</a>
+        </nav>
+
+        <a href="#play" class="nav-button">Play Now ↗</a>
+    </header>
+
+    <main class="hero">
+
+        <div class="hero-content">
+
+            <div class="status">
+                <span class="live-dot"></span>
+                THE ULTIMATE MULTIPLAYER QUIZ
+            </div>
+
+            <h1>
+                THINK FAST.<br>
+                <span>TAP FIRST.</span><br>
+                WIN BIG.
+            </h1>
+
+            <p class="description">
+                Your knowledge is your weapon.
+                Your speed is your power.
+                Challenge your friends and prove
+                who's the fastest mind in the room.
+            </p>
+
+            <div class="buttons" id="play">
+                <button class="create-btn" onclick="showMessage('Create Room')">
+                    <span>＋</span> Create Room
+                </button>
+
+                <button class="join-btn" onclick="showMessage('Join Room')">
+                    Join Room <span>→</span>
+                </button>
+            </div>
+
+            <div class="game-info">
+                <div>
+                    <strong>01</strong>
+                    <span>CREATE A ROOM</span>
+                </div>
+                <div>
+                    <strong>02</strong>
+                    <span>INVITE FRIENDS</span>
+                </div>
+                <div>
+                    <strong>03</strong>
+                    <span>TAP TO WIN</span>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="hero-visual">
+            <div class="circle circle-one"></div>
+            <div class="circle circle-two"></div>
+
+            <div class="game-card">
+                <div class="card-top">
+                    <span>⚡ SPEED CHALLENGE</span>
+                    <span class="live-label">● LIVE</span>
+                </div>
+
+                <div class="trophy">🏆</div>
+
+                <p class="card-small">THE FASTEST FINGER WINS</p>
+                <h2>ARE YOU<br>FAST ENOUGH?</h2>
+
+                <div class="player-list">
+                    <div class="player">
+                        <span>🟣</span> Player One
+                        <b>READY</b>
+                    </div>
+                    <div class="player">
+                        <span>🔵</span> Player Two
+                        <b>READY</b>
+                    </div>
+                    <div class="player">
+                        <span>🟢</span> Player Three
+                        <b>READY</b>
+                    </div>
+                </div>
+
+                <div class="tap-indicator">
+                    <span>⚡</span> FIRST TAP WINS
+                </div>
+            </div>
+
+            <div class="floating-tag tag-one">⚡ SPEED MATTERS</div>
+            <div class="floating-tag tag-two">🏆 BE THE CHAMPION</div>
+        </div>
+
+    </main>
+
+    <section class="features" id="features">
+        <div>
+            <span>01 / COMPETE</span>
+            <h3>Challenge Friends</h3>
+            <p>Create private rooms and invite your siblings or friends.</p>
+        </div>
+        <div>
+            <span>02 / REACT</span>
+            <h3>Beat The Clock</h3>
+            <p>Answer quickly. Every millisecond counts.</p>
+        </div>
+        <div>
+            <span>03 / CONQUER</span>
+            <h3>Become Champion</h3>
+            <p>Win rounds, collect points and top the leaderboard.</p>
+        </div>
+    </section>
+
+        
+<!-- CREATE ROOM MODAL -->
+<div class="modal-overlay" id="createModal">
+    <div class="modal-box">
+
+        <button class="close-btn" onclick="closeModals()">×</button>
+
+        <div class="modal-icon">⚡</div>
+        <h2>CREATE YOUR ROOM</h2>
+        <p class="modal-description">Set up your ultimate quiz battle.</p>
+
+        <form id="createForm">
+
+            <label>Room Name</label>
+            <input type="text" id="roomName"
+                placeholder="Sibling Quiz Battle" required>
+
+            <label>Your Username</label>
+            <input type="text" id="hostName"
+                placeholder="Enter your name" required>
+
+            <div class="form-row">
+                <div>
+                    <label>Maximum Players</label>
+                    <select id="maxPlayers">
+                        <option value="2">2 Players</option>
+                        <option value="4">4 Players</option>
+                        <option value="6">6 Players</option>
+                        <option value="8" selected>8 Players</option>
+                        <option value="10">10 Players</option>
+                        <option value="15">15 Players</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Number of Rounds</label>
+                    <select id="rounds">
+                        <option value="5">5 Rounds</option>
+                        <option value="10" selected>10 Rounds</option>
+                        <option value="15">15 Rounds</option>
+                        <option value="20">20 Rounds</option>
+                    </select>
+                </div>
+            </div>
+
+            <label>Question Category</label>
+            <select id="category">
+                <option value="mixed">Mixed Questions</option>
+                <option value="gk">General Knowledge</option>
+                <option value="maths">Mathematics</option>
+                <option value="science">Science</option>
+                <option value="alphabet">Alphabet Challenge</option>
+                <option value="riddles">Riddles</option>
+            </select>
+
+            <label class="check-label">
+                <input type="checkbox" id="hostPlaying" checked>
+                I want to participate as a player
+            </label>
+
+            <button type="submit" class="create-btn modal-submit">
+                CREATE ROOM →
+            </button>
+
+        </form>
+    </div>
+</div>
+
+
+<!-- JOIN ROOM MODAL -->
+<div class="modal-overlay" id="joinModal">
+    <div class="modal-box">
+
+        <button class="close-btn" onclick="closeModals()">×</button>
+
+        <div class="modal-icon">🎮</div>
+        <h2>JOIN A ROOM</h2>
+        <p class="modal-description">
+            Enter your friend's room details.
+        </p>
+
+        <form id="joinForm">
+
+            <label>Room Code</label>
+            <input type="text" id="joinCode"
+                placeholder="Enter 6-digit code"
+                maxlength="6" required>
+
+            <label>Your Username</label>
+            <input type="text" id="joinName"
+                placeholder="Enter your name" required>
+
+            <button type="submit" class="create-btn modal-submit">
+                JOIN GAME →
+            </button>
+
+        </form>
+    </div>
+</div>
+
+
+<!-- MULTIPLAYER LOBBY -->
+<div class="lobby-overlay" id="lobbyOverlay" aria-hidden="true">
+    <section class="lobby-panel">
+        <div class="lobby-topline">
+            <span class="lobby-live-dot"></span>
+            PRIVATE GAME ROOM
+            <span class="lobby-live-label">LIVE</span>
+        </div>
+
+        <div class="lobby-heading">
+            <div>
+                <p class="lobby-eyebrow">YOUR BATTLE STARTS HERE</p>
+                <h2 id="lobbyRoomName">Quiz Battle</h2>
+                <p class="lobby-subtitle">Invite your friends and get ready to compete.</p>
+            </div>
+            <div class="lobby-player-counter">
+                <strong id="playerCount">1 / 8</strong>
+                <span>PLAYERS</span>
+            </div>
+        </div>
+
+        <div class="room-code-card">
+            <div>
+                <span class="lobby-eyebrow">SHARE THIS ROOM CODE</span>
+                <strong id="lobbyRoomCode">------</strong>
+            </div>
+            <button type="button" id="copyRoomCode" class="copy-code-btn">COPY CODE</button>
+        </div>
+
+        <div class="lobby-details">
+            <div><span>ROUNDS</span><strong id="lobbyRounds">10</strong></div>
+            <div><span>CATEGORY</span><strong id="lobbyCategory">Mixed</strong></div>
+            <div><span>ROOM STATUS</span><strong class="status-waiting">WAITING</strong></div>
+        </div>
+
+        <div class="lobby-section-heading">
+            <div>
+                <span class="lobby-eyebrow">THE COMPETITORS</span>
+                <h3>Players in lobby</h3>
+            </div>
+            <span class="live-count-label"><span></span> LIVE UPDATES</span>
+        </div>
+
+        <div id="lobbyPlayerList" class="lobby-player-list">
+            <div class="lobby-player">
+                <span class="player-avatar">Y</span>
+                <span class="lobby-player-name">You</span>
+                <span class="host-tag">HOST</span>
+            </div>
+        </div>
+
+        <p class="lobby-status-message" id="lobbyStatus">Waiting for players to join...</p>
+
+        <button type="button" id="startGameBtn" class="start-game-btn" disabled>
+            START GAME <span>→</span>
+        </button>
+        <p class="host-waiting-note" id="hostWaitingNote" hidden>
+            The host will start the game when everyone is ready.
+        </p>
+        <button type="button" id="leaveRoomBtn" class="leave-room-btn">LEAVE ROOM</button>
+    </section>
+</div>
+
+<!-- SYNCHRONIZED 10-SECOND COUNTDOWN -->
+<div class="countdown-overlay" id="countdownOverlay" aria-hidden="true">
+    <div class="countdown-card">
+        <span class="countdown-eyebrow">FIRST TAP WINS</span>
+        <h2 id="countdownTitle">GET READY!</h2>
+        <div class="countdown-number" id="countdownNumber" aria-live="assertive">10</div>
+        <p id="countdownMessage">The quiz is about to begin. Take your position!</p>
+        <div class="countdown-progress"><span id="countdownProgressBar"></span></div>
+        <p class="countdown-small">Everyone starts together</p>
+    </div>
+</div>
+
+
+<!-- LIVE QUIZ GAME -->
+<div class="game-overlay" id="gameOverlay" aria-hidden="true">
+    <main class="game-panel">
+        <div class="game-topbar">
+            <div class="game-brand">⚡ FIRST TAP WINS</div>
+            <div class="game-round-pill" id="gameRoundLabel">ROUND 1 / 5</div>
+            <button type="button" class="game-leave" id="gameLeaveBtn">LEAVE GAME</button>
+        </div>
+        <div class="game-score-strip" id="gameScoreboard"></div>
+        <section class="question-card">
+            <div class="question-kicker">⚡ THINK FAST · TAP FIRST</div>
+            <h2 id="questionText">Get ready for the first question!</h2>
+            <p class="game-status" id="gameStatus">Waiting for question...</p>
+            <div class="answer-grid" id="answerGrid">
+                <button type="button" class="answer-option" data-choice="0" disabled><span>A</span><b>Option one</b></button>
+                <button type="button" class="answer-option" data-choice="1" disabled><span>B</span><b>Option two</b></button>
+                <button type="button" class="answer-option" data-choice="2" disabled><span>C</span><b>Option three</b></button>
+                <button type="button" class="answer-option" data-choice="3" disabled><span>D</span><b>Option four</b></button>
+            </div>
+            <div class="buzzer-area">
+                <div class="game-timer" id="gameTimer">15</div>
+                <button type="button" class="buzz-button" id="buzzButton" disabled>⚡ BUZZ IN</button>
+                <p class="buzzer-help" id="buzzerHelp">Wait for the question, then be the fastest!</p>
+            </div>
+        </section>
+        <div class="game-footer-note">Correct answer: +100 points · Fastest player gets the first chance</div>
+    </main>
+</div>
+
+    <footer>
+        <a href="#" class="logo">⚡ FIRST TAP WINS</a>
+        <p>Made for the fastest minds. © 2026</p>
+    </footer>
+
+    
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+const socket = io();
+
+let currentRoomCode = null;
+let amHost = false;
+let currentRoomSettings = {};
+let countdownInterval = null;
+
+function showMessage(action) {
+    closeModals();
+    if (action === "Create Room") {
+        document.getElementById("createModal").classList.add("active");
+    } else if (action === "Join Room") {
+        document.getElementById("joinModal").classList.add("active");
+    }
+}
+
+function closeModals() {
+    document.querySelectorAll(".modal-overlay").forEach(modal => {
+        modal.classList.remove("active");
+    });
+}
+
+document.querySelectorAll(".modal-overlay").forEach(modal => {
+    modal.addEventListener("click", function(event) {
+        if (event.target === modal) closeModals();
+    });
+});
+
+function enterLobby(code, host, settings) {
+    currentRoomCode = code;
+    amHost = host;
+    currentRoomSettings = settings || {};
+    document.getElementById("lobbyRoomCode").textContent = code;
+    document.getElementById("lobbyRoomName").textContent =
+        currentRoomSettings.roomName || "Quiz Battle";
+    document.getElementById("lobbyRounds").textContent =
+        currentRoomSettings.rounds || "—";
+    document.getElementById("lobbyCategory").textContent =
+        currentRoomSettings.category || "Mixed";
+    document.getElementById("lobbyStatus").textContent =
+        "Waiting for players to join...";
+    document.getElementById("startGameBtn").hidden = !host;
+    document.getElementById("hostWaitingNote").hidden = host;
+    document.getElementById("lobbyOverlay").classList.add("active");
+    document.getElementById("lobbyOverlay").setAttribute("aria-hidden", "false");
+}
+
+function exitLobby() {
+    document.getElementById("lobbyOverlay").classList.remove("active");
+    document.getElementById("lobbyOverlay").setAttribute("aria-hidden", "true");
+    currentRoomCode = null;
+    amHost = false;
+    currentRoomSettings = {};
+}
+
+function showCountdown(data) {
+    const overlay = document.getElementById("countdownOverlay");
+    const title = document.getElementById("countdownTitle");
+    const number = document.getElementById("countdownNumber");
+    const message = document.getElementById("countdownMessage");
+    const progress = document.getElementById("countdownProgressBar");
+    const startAt = Number(data.startsAt);
+    const duration = Number(data.duration) || 10;
+
+    if (countdownInterval) clearInterval(countdownInterval);
+    title.textContent = "GET READY!";
+    message.textContent = "The quiz is about to begin. Take your position!";
+    number.classList.remove("countdown-go");
+    overlay.classList.add("active");
+    overlay.setAttribute("aria-hidden", "false");
+
+    function updateCountdown() {
+        const remaining = Math.max(0, Math.ceil((startAt - Date.now()) / 1000));
+        number.textContent = remaining > 0 ? remaining : "GO!";
+        progress.style.width = `${Math.min(100, ((duration - remaining) / duration) * 100)}%`;
+        if (remaining === 0) {
+            number.classList.add("countdown-go");
+            title.textContent = "LET'S PLAY!";
+            message.textContent = "Countdown complete!";
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+        }
+    }
+
+    updateCountdown();
+    countdownInterval = setInterval(updateCountdown, 100);
+}
+
+function hideCountdown() {
+    if (countdownInterval) clearInterval(countdownInterval);
+    countdownInterval = null;
+    const overlay = document.getElementById("countdownOverlay");
+    overlay.classList.remove("active");
+    overlay.setAttribute("aria-hidden", "true");
+}
+
+document.getElementById("createForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const data = {
+        roomName: document.getElementById("roomName").value.trim(),
+        name: document.getElementById("hostName").value.trim(),
+        maxPlayers: Number(document.getElementById("maxPlayers").value),
+        rounds: Number(document.getElementById("rounds").value),
+        category: document.getElementById("category").value
+    };
+
+    socket.emit("create-room", data, function(result) {
+        if (!result || !result.success) {
+            alert(result?.message || "Could not create room. Please try again.");
+            return;
+        }
+        closeModals();
+        enterLobby(result.code, true, data);
+    });
+});
+
+document.getElementById("joinForm").addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    const data = {
+        code: document.getElementById("joinCode").value.trim(),
+        name: document.getElementById("joinName").value.trim()
+    };
+
+    socket.emit("join-room", data, function(result) {
+        if (!result || !result.success) {
+            alert(result?.message || "Could not join room. Please try again.");
+            return;
+        }
+        closeModals();
+        enterLobby(result.code, false, result.settings || {});
+    });
+});
+
+socket.on("players-update", function(data) {
+    if (!currentRoomCode) return;
+
+    const players = data.players || [];
+    const me = players.find(player => player.id === socket.id);
+    if (me) {
+        amHost = me.isHost;
+        document.getElementById("startGameBtn").hidden = !amHost;
+        document.getElementById("hostWaitingNote").hidden = amHost;
+    }
+    const list = document.getElementById("lobbyPlayerList");
+    list.innerHTML = "";
+
+    players.forEach((player, index) => {
+        const item = document.createElement("div");
+        item.className = "lobby-player";
+
+        const avatar = document.createElement("span");
+        avatar.className = "player-avatar";
+        avatar.textContent = player.name.slice(0, 1).toUpperCase();
+
+        const name = document.createElement("span");
+        name.className = "lobby-player-name";
+        name.textContent = player.name;
+
+        const tag = document.createElement("span");
+        tag.className = player.isHost ? "host-tag" : "ready-tag";
+        tag.textContent = player.isHost ? "HOST" : "CONNECTED";
+
+        item.append(avatar, name, tag);
+        list.appendChild(item);
+    });
+
+    document.getElementById("playerCount").textContent =
+        `${players.length} / ${data.maxPlayers || "—"}`;
+    document.getElementById("lobbyStatus").textContent =
+        players.length >= 2 ? "Players are connected. Get ready!" :
+        "Waiting for at least one friend...";
+    document.getElementById("startGameBtn").disabled =
+        !amHost || players.length < 2;
+});
+
+document.getElementById("copyRoomCode").addEventListener("click", async function() {
+    if (!currentRoomCode) return;
+    try {
+        await navigator.clipboard.writeText(currentRoomCode);
+        this.textContent = "COPIED ✓";
+        setTimeout(() => this.textContent = "COPY CODE", 1500);
+    } catch {
+        alert("Your room code is: " + currentRoomCode);
+    }
+});
+
+document.getElementById("leaveRoomBtn").addEventListener("click", function() {
+    if (!currentRoomCode) return;
+    socket.emit("leave-room", function() {
+        exitLobby();
+    });
+});
+
+document.getElementById("startGameBtn").addEventListener("click", function() {
+    if (!currentRoomCode || !amHost) return;
+    this.disabled = true;
+    socket.emit("start-game", function(result) {
+        if (!result || !result.success) {
+            alert(result?.message || "Could not start the game.");
+            this.disabled = false;
+        }
+    }.bind(this));
+});
+
+socket.on("room-notice", function(message) {
+    alert(message);
+});
+
+socket.on("game-countdown", function(data) {
+    document.getElementById("startGameBtn").disabled = true;
+    document.getElementById("lobbyStatus").textContent =
+        "Get ready! The game starts in 10 seconds.";
+    showCountdown(data);
+});
+
+let canAnswer = false;
+let gameClock = null;
+function stopGameClock() {
+    if (gameClock) clearInterval(gameClock);
+    gameClock = null;
+}
+function setGameClock(seconds) {
+    stopGameClock();
+    let left = seconds;
+    document.getElementById("gameTimer").textContent = left;
+    gameClock = setInterval(function() {
+        left = Math.max(0, left - 1);
+        document.getElementById("gameTimer").textContent = left;
+        if (left <= 0) stopGameClock();
+    }, 1000);
+}
+function showGame() {
+    document.getElementById("gameOverlay").classList.add("active");
+    document.getElementById("gameOverlay").setAttribute("aria-hidden", "false");
+    document.getElementById("lobbyOverlay").classList.remove("active");
+    document.getElementById("lobbyOverlay").setAttribute("aria-hidden", "true");
+}
+function updateGameScores(scores) {
+    const board = document.getElementById("gameScoreboard");
+    board.innerHTML = "";
+    (scores || []).forEach(function(player, index) {
+        const card = document.createElement("div");
+        card.className = "game-score-card";
+        const rank = document.createElement("span");
+        rank.className = "score-rank";
+        rank.textContent = "#" + (index + 1);
+        const name = document.createElement("strong");
+        name.textContent = player.name;
+        const score = document.createElement("b");
+        score.textContent = (player.score || 0) + " pts";
+        card.append(rank, name, score);
+        board.appendChild(card);
+    });
+}
+function setOptionsEnabled(enabled) {
+    document.querySelectorAll(".answer-option").forEach(button => button.disabled = !enabled);
+}
+document.querySelectorAll(".answer-option").forEach(function(button) {
+    button.addEventListener("click", function() {
+        if (!canAnswer) return;
+        canAnswer = false;
+        setOptionsEnabled(false);
+        socket.emit("submit-answer", Number(this.dataset.choice), function(result) {
+            if (!result || !result.success) {
+                document.getElementById("gameStatus").textContent = result?.message || "Answer could not be submitted.";
+            }
+        });
+    });
+});
+document.getElementById("buzzButton").addEventListener("click", function() {
+    this.disabled = true;
+    socket.emit("buzz-in", function(result) {
+        if (!result || !result.success) {
+            document.getElementById("gameStatus").textContent = result?.message || "Too late!";
+        }
+    });
+});
+document.getElementById("gameLeaveBtn").addEventListener("click", function() {
+    stopGameClock();
+    socket.emit("leave-room", function() { window.location.reload(); });
+});
+
+socket.on("game-started", function() {
+    const number = document.getElementById("countdownNumber");
+    number.textContent = "GO!";
+    number.classList.add("countdown-go");
+    document.getElementById("countdownTitle").textContent = "LET'S PLAY!";
+    document.getElementById("countdownMessage").textContent = "Your first question is coming up!";
+    setTimeout(function() { hideCountdown(); showGame(); }, 700);
+});
+socket.on("question-start", function(data) {
+    canAnswer = false;
+    setOptionsEnabled(false);
+    document.getElementById("gameRoundLabel").textContent = `ROUND ${data.round} / ${data.totalRounds}`;
+    document.getElementById("questionText").textContent = data.question;
+    document.getElementById("gameStatus").textContent = "Question is live! Be the first to buzz in.";
+    document.getElementById("buzzButton").disabled = false;
+    document.getElementById("buzzButton").textContent = "⚡ BUZZ IN";
+    document.getElementById("buzzerHelp").textContent = "Tap the buzzer before anyone else.";
+    document.querySelectorAll(".answer-option").forEach(function(button, index) {
+        button.classList.remove("correct", "incorrect", "selected");
+        button.querySelector("b").textContent = data.options[index];
+    });
+    setGameClock(data.buzzSeconds || 15);
+});
+socket.on("buzz-locked", function(data) {
+    stopGameClock();
+    document.getElementById("buzzButton").disabled = true;
+    document.getElementById("gameTimer").textContent = data.answerSeconds;
+    if (data.playerId === socket.id) {
+        canAnswer = true;
+        setOptionsEnabled(true);
+        document.getElementById("gameStatus").textContent = "YOU BUZZED FIRST! Choose your answer now.";
+        document.getElementById("buzzerHelp").textContent = "You have 8 seconds to answer.";
+    } else {
+        canAnswer = false;
+        setOptionsEnabled(false);
+        document.getElementById("gameStatus").textContent = data.playerName + " buzzed first! Waiting for their answer...";
+        document.getElementById("buzzerHelp").textContent = "Be ready for the next question.";
+    }
+    setGameClock(data.answerSeconds || 8);
+});
+socket.on("answer-result", function(data) {
+    canAnswer = false;
+    stopGameClock();
+    setOptionsEnabled(false);
+    document.getElementById("gameTimer").textContent = data.correct ? "+100" : "0";
+    document.getElementById("gameStatus").textContent = data.correct
+        ? data.playerName + " answered correctly! +100 points 🎉"
+        : data.playerName + " got it wrong. Correct answer: " + data.correctAnswer;
+    document.getElementById("buzzerHelp").textContent = "Next question coming soon...";
+    document.querySelectorAll(".answer-option").forEach(function(button, index) {
+        if (button.querySelector("b").textContent === data.correctAnswer) button.classList.add("correct");
+        if (index === data.selectedIndex && !data.correct) button.classList.add("incorrect");
+    });
+    updateGameScores(data.scores);
+});
+socket.on("question-unanswered", function(data) {
+    canAnswer = false;
+    stopGameClock();
+    document.getElementById("buzzButton").disabled = true;
+    document.getElementById("gameTimer").textContent = "TIME";
+    document.getElementById("gameStatus").textContent = "Nobody buzzed in! Correct answer: " + data.correctAnswer;
+    document.querySelectorAll(".answer-option").forEach(button => {
+        button.disabled = true;
+        if (button.querySelector("b").textContent === data.correctAnswer) button.classList.add("correct");
+    });
+    updateGameScores(data.scores);
+});
+socket.on("answer-timeout", function(data) {
+    canAnswer = false;
+    stopGameClock();
+    setOptionsEnabled(false);
+    document.getElementById("gameTimer").textContent = "TIME";
+    document.getElementById("gameStatus").textContent = data.playerName + " ran out of time. Correct answer: " + data.correctAnswer;
+    document.querySelectorAll(".answer-option").forEach(button => {
+        if (button.querySelector("b").textContent === data.correctAnswer) button.classList.add("correct");
+    });
+    updateGameScores(data.scores);
+});
+socket.on("game-over", function(data) {
+    stopGameClock();
+    canAnswer = false;
+    setOptionsEnabled(false);
+    document.getElementById("questionText").textContent = "🏆 FINAL LEADERBOARD";
+    document.getElementById("gameStatus").textContent = "Quiz complete! Congratulations to all players.";
+    document.getElementById("buzzButton").hidden = true;
+    document.getElementById("buzzerHelp").textContent = "Thanks for playing First Tap Wins!";
+    document.getElementById("gameTimer").textContent = "DONE";
+    const grid = document.getElementById("answerGrid");
+    grid.innerHTML = "";
+    (data.leaderboard || []).forEach(function(player, index) {
+        const row = document.createElement("div");
+        row.className = "final-player-row";
+        row.innerHTML = `<span>${index === 0 ? "🏆" : "#" + (index + 1)}</span><strong></strong><b></b>`;
+        row.querySelector("strong").textContent = player.name;
+        row.querySelector("b").textContent = player.score + " pts";
+        grid.appendChild(row);
+    });
+    document.getElementById("gameRoundLabel").textContent = "GAME COMPLETE";
+});
+socket.on("game-paused", function(message) {
+    stopGameClock();
+    document.getElementById("gameStatus").textContent = message;
+    document.getElementById("buzzButton").disabled = true;
+    setOptionsEnabled(false);
+});
+
+socket.on("game-countdown-cancelled", function(data) {
+    hideCountdown();
+    document.getElementById("startGameBtn").disabled = false;
+    document.getElementById("lobbyStatus").textContent =
+        data?.message || "Countdown cancelled. Waiting for players.";
+});
+
+socket.on("room-closed", function(message) {
+    alert(message || "The room has been closed.");
+    exitLobby();
+});
+
+socket.on("connect_error", function() {
+    document.getElementById("lobbyStatus").textContent =
+        "Connection problem. Check that the game server is running.";
+});
+</script>
+
+
+
+</body>
+</html>
