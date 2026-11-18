@@ -185,22 +185,16 @@
     </section>
 
 <section class="mini-games-section" id="mini-games" aria-labelledby="miniGamesTitle">
-<div class="mini-games-heading"><div><span class="section-kicker">MORE WAYS TO PLAY</span><h2 id="miniGamesTitle">Mini games arcade</h2><p>Quick challenges for a short break or a friendly competition.</p></div><span class="mini-games-count">3 GAME MODES</span></div>
-<div class="mini-games-grid">
-<article class="mini-game-card playable-card"><div class="mini-game-card-top"><span class="mini-game-icon">🎱</span><span class="mini-game-tag available">MULTIPLAYER</span></div><h3>Bingo Battle</h3><p>Join a friend, mark called numbers and be the first to complete a line.</p><div class="mini-game-preview math-preview"><strong>B · I · N · G · O</strong></div><button type="button" class="mini-game-button open-multiplayer-game" data-multiplayer-game="bingo">PLAY BINGO WITH FRIENDS</button></article>
-
-<article class="mini-game-card reaction-card" data-game-title="Reaction Rush"><div class="mini-game-card-top"><span class="mini-game-icon">⚡</span><span class="mini-game-tag available">PLAY NOW</span></div><h3>Reaction Rush</h3><p>Wait for the signal, then tap as quickly as you can. Test your reaction time.</p><div class="reaction-stage" id="reactionStage" aria-live="polite">Ready when you are</div><div class="reaction-result" id="reactionResult">Your best time will appear here.</div><button type="button" class="mini-game-button" id="reactionButton">START CHALLENGE</button><button type="button" class="open-game-screen" data-open-card>OPEN REACTION RUSH</button></article>
-<article class="mini-game-card playable-card" data-game-title="Memory Match"><div class="mini-game-card-top"><span class="mini-game-icon">🧠</span><span class="mini-game-tag available">PLAY NOW</span></div><h3>Memory Match</h3><p>Find all matching pairs using as few moves as possible.</p><div class="memory-board" id="memoryBoard" aria-label="Memory card board"></div><div class="mini-game-result" id="memoryResult" aria-live="polite">Find the matching pairs.</div><button type="button" class="mini-game-button" id="memoryButton">START MEMORY GAME</button><button type="button" class="open-game-screen" data-open-card>OPEN MEMORY MATCH</button></article>
-<article class="mini-game-card playable-card" data-game-title="Quick Math"><div class="mini-game-card-top"><span class="mini-game-icon">➗</span><span class="mini-game-tag available">PLAY NOW</span></div><h3>Quick Math</h3><p>Answer as many quick calculations as you can in 30 seconds.</p><div class="math-question" id="mathQuestion">Press start to begin.</div><div class="math-controls"><input id="mathAnswer" type="number" inputmode="numeric" placeholder="Your answer" aria-label="Math answer" disabled><button type="button" id="mathSubmit" disabled>OK</button></div><div class="mini-game-result" id="mathResult" aria-live="polite">Score: 0 · Time: 30s</div><button type="button" class="mini-game-button" id="mathStart">START QUICK MATH</button><button type="button" class="open-game-screen" data-open-card>OPEN QUICK MATH</button></article>
-<article class="mini-game-card playable-card" data-game-title="Word Scramble"><div class="mini-game-card-top"><span class="mini-game-icon">🔤</span><span class="mini-game-tag available">PLAY NOW</span></div><h3>Word Scramble</h3><p>Unscramble the letters and find the hidden word.</p><div class="word-scramble" id="wordScramble">READY?</div><input class="word-answer" id="wordAnswer" type="text" placeholder="Type the word" aria-label="Word answer" disabled><div class="mini-game-result" id="wordResult" aria-live="polite">Start a round to play.</div><button type="button" class="mini-game-button" id="wordStart">START WORD CHALLENGE</button><button type="button" class="open-game-screen" data-open-card>OPEN WORD SCRAMBLE</button></article>
-<article class="mini-game-card playable-card" data-game-title="Tic-Tac-Toe"><div class="mini-game-card-top"><span class="mini-game-icon">⭕</span><span class="mini-game-tag available">2 PLAYERS</span></div><h3>Tic-Tac-Toe</h3><p>Take turns on this device. Get three marks in a row to win.</p><div class="ttt-board" id="tttBoard" aria-label="Tic tac toe board"></div><div class="mini-game-result" id="tttResult" aria-live="polite">Player X starts.</div><button type="button" class="mini-game-button" id="tttReset">NEW ROUND</button><button type="button" class="open-game-screen" data-open-card>OPEN LOCAL GAME</button><button type="button" class="open-multiplayer-game" data-multiplayer-game="ttt">PLAY ONLINE WITH FRIEND</button></article>
-</div></section>
-
-<div class="arcade-multiplayer" id="multiplayer-arcade">
- <div class="arcade-multiplayer-heading"><span class="section-kicker">PLAY WITH FRIENDS</span><h3>Multiplayer Arcade</h3><p>Create a private room or join a friend's room using a six-digit code.</p></div>
- <div class="arcade-room-controls"><input id="arcadePlayerName" maxlength="20" placeholder="Your player name" aria-label="Your player name"><select id="arcadeGameType" aria-label="Choose multiplayer game"><option value="bingo">Bingo</option><option value="ttt">Tic-Tac-Toe</option></select><button type="button" id="arcadeCreate">CREATE ROOM</button><input id="arcadeJoinCode" inputmode="numeric" maxlength="6" placeholder="Room code" aria-label="Room code"><button type="button" id="arcadeJoin">JOIN ROOM</button></div>
- <div class="arcade-room-panel" id="arcadeRoomPanel" hidden><div class="arcade-room-top"><strong id="arcadeRoomTitle">Arcade room</strong><span>CODE: <b id="arcadeRoomCode"></b></span></div><p id="arcadeRoomStatus" aria-live="polite">Waiting for another player…</p><div id="arcadePlayers" class="arcade-players"></div><button type="button" id="arcadeStart">START GAME</button><button type="button" id="arcadeLeave" class="arcade-leave">LEAVE ROOM</button><div id="arcadeGameArea" class="arcade-game-area" hidden></div></div>
-</div>
+ <div class="mini-games-heading"><div><span class="section-kicker">MORE WAYS TO PLAY</span><h2 id="miniGamesTitle">Multiplayer mini-game arcade</h2><p>Choose a game, create a private room and invite a friend with a six-digit code.</p></div><span class="mini-games-count">6 MULTIPLAYER GAMES</span></div>
+ <div class="mini-games-grid mini-games-grid-clean">
+  <article class="mini-game-card"><div class="mini-game-card-top"><span class="mini-game-icon">🎱</span><span class="mini-game-tag available">2 PLAYERS</span></div><h3>Bingo Battle</h3><p>Call numbers, mark your card and complete a line before your opponent.</p><button class="mini-game-button mini-open-game" data-mini-game="bingo">PLAY BINGO →</button></article>
+  <article class="mini-game-card"><div class="mini-game-card-top"><span class="mini-game-icon">⚡</span><span class="mini-game-tag available">2 PLAYERS</span></div><h3>Reaction Rush</h3><p>Wait for the signal and be the first player to tap. False starts lose the round.</p><button class="mini-game-button mini-open-game" data-mini-game="reaction">PLAY REACTION RUSH →</button></article>
+  <article class="mini-game-card"><div class="mini-game-card-top"><span class="mini-game-icon">🧠</span><span class="mini-game-tag available">2 PLAYERS</span></div><h3>Memory Match</h3><p>Take turns revealing cards, find pairs and finish with the most matches.</p><button class="mini-game-button mini-open-game" data-mini-game="memory">PLAY MEMORY MATCH →</button></article>
+  <article class="mini-game-card"><div class="mini-game-card-top"><span class="mini-game-icon">➗</span><span class="mini-game-tag available">2 PLAYERS</span></div><h3>Quick Math</h3><p>Solve ten quick calculations. First correct answer earns the point.</p><button class="mini-game-button mini-open-game" data-mini-game="math">PLAY QUICK MATH →</button></article>
+  <article class="mini-game-card"><div class="mini-game-card-top"><span class="mini-game-icon">🔤</span><span class="mini-game-tag available">2 PLAYERS</span></div><h3>Word Scramble</h3><p>Unscramble each word before your friend and collect points.</p><button class="mini-game-button mini-open-game" data-mini-game="word">PLAY WORD SCRAMBLE →</button></article>
+  <article class="mini-game-card"><div class="mini-game-card-top"><span class="mini-game-icon">⭕</span><span class="mini-game-tag available">2 PLAYERS</span></div><h3>Tic-Tac-Toe</h3><p>Play online, take turns and start another round without making a new room.</p><button class="mini-game-button mini-open-game" data-mini-game="ttt">PLAY TIC-TAC-TOE →</button></article>
+ </div>
+</section>
     <section class="features" id="features">
         <div>
             <span>01 / COMPETE</span>
@@ -240,8 +234,24 @@
  </div>
 </div>
 <section class="game-screen" id="gameScreen" hidden aria-live="polite">
- <header class="game-screen-header"><button type="button" class="game-screen-back" id="gameScreenBack">← BACK TO ARCADE</button><div><span class="section-kicker">FIRST TAP WINS ARCADE</span><h2 id="gameScreenTitle">Game</h2><p id="gameScreenSubtitle">Ready when you are.</p></div></header>
- <div class="game-screen-content" id="gameScreenContent"></div>
+ <header class="game-screen-header"><button type="button" class="game-screen-back" id="gameScreenBack">← BACK TO ARCADE</button><div><span class="section-kicker">FIRST TAP WINS ARCADE</span><h2 id="gameScreenTitle">Game</h2><p id="gameScreenSubtitle">Create a room or join a friend's room.</p></div></header>
+ <div class="game-screen-content">
+  <section class="arcade-room-shell">
+   <div class="arcade-room-controls arcade-room-controls-clean">
+    <label>Player name<input id="arcadePlayerName" maxlength="20" placeholder="Your name" autocomplete="nickname"></label>
+    <button type="button" id="arcadeCreate">CREATE ROOM</button>
+    <label>Six-digit room code<input id="arcadeJoinCode" inputmode="numeric" maxlength="6" placeholder="Enter code"></label>
+    <button type="button" id="arcadeJoin">JOIN ROOM</button>
+   </div>
+   <p class="arcade-feedback" id="arcadeFeedback" aria-live="polite">Create a room and share its code with one friend.</p>
+   <div class="arcade-room-panel" id="arcadeRoomPanel" hidden>
+    <div class="arcade-room-top"><strong id="arcadeRoomTitle">Game room</strong><span>CODE: <b id="arcadeRoomCode"></b> <button type="button" id="arcadeCopyCode">COPY</button></span></div>
+    <p id="arcadeRoomStatus" aria-live="polite">Waiting for another player…</p><div id="arcadePlayers" class="arcade-players"></div>
+    <div class="arcade-room-actions"><button type="button" id="arcadeStart">START GAME</button><button type="button" id="arcadeRematch" hidden>PLAY AGAIN</button><button type="button" id="arcadeLeave" class="arcade-leave">LEAVE ROOM</button></div>
+    <div id="arcadeGameArea" class="arcade-game-area" hidden></div>
+   </div>
+  </section>
+ </div>
 </section>
 <!-- CREATE ROOM MODAL -->
 <div class="modal-overlay" id="createModal">
@@ -495,60 +505,62 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
 const socket=io(); window.socket=socket;
-/* Phase 3 arcade games: Memory Match, Quick Math, Word Scramble and Tic-Tac-Toe. */
 (function(){
- const $=id=>document.getElementById(id);
- // Memory Match
- const mb=$("memoryBoard"),mr=$("memoryResult"),mstart=$("memoryButton");
- if(mb&&mr&&mstart){
-  const faces=["★","●","◆","▲","♥","☀","♣","✦"];let deck=[],opened=[],moves=0,matched=0,lock=false;
-  function memoryStart(){deck=faces.concat(faces).sort(()=>Math.random()-.5);opened=[];moves=0;matched=0;lock=false;mb.innerHTML="";deck.forEach((face,i)=>{const b=document.createElement("button");b.type="button";b.className="memory-tile";b.textContent="?";b.setAttribute("aria-label","Hidden card "+(i+1));b.addEventListener("click",()=>flip(i,b));mb.appendChild(b);});mr.textContent="Moves: 0 · Pairs: 0/8";mstart.textContent="RESTART GAME";}
-  function flip(i,b){if(lock||b.classList.contains("matched")||opened.some(x=>x.i===i))return;b.textContent=deck[i];b.classList.add("revealed");opened.push({i,b});if(opened.length===2){moves++;if(deck[opened[0].i]===deck[opened[1].i]){opened.forEach(x=>x.b.classList.add("matched"));matched++;opened=[];mr.textContent="Moves: "+moves+" · Pairs: "+matched+"/8";if(matched===8)mr.textContent="You matched all pairs in "+moves+" moves!";}else{lock=true;const pair=opened.slice();setTimeout(()=>{pair.forEach(x=>{x.b.textContent="?";x.b.classList.remove("revealed");});opened=[];lock=false;mr.textContent="Moves: "+moves+" · Pairs: "+matched+"/8";},700);}}}
-  mstart.addEventListener("click",memoryStart);memoryStart();
+ const $=id=>document.getElementById(id),names={bingo:"Bingo Battle",reaction:"Reaction Rush",memory:"Memory Match",math:"Quick Math",word:"Word Scramble",ttt:"Tic-Tac-Toe"};
+ let selected="bingo",code=null,state=null,host=false;
+ const screen=$("gameScreen"),area=$("arcadeGameArea"),panel=$("arcadeRoomPanel");
+ const emit=(event,data={})=>new Promise(resolve=>socket.emit(event,data,resolve));
+ function openGame(game){
+  selected=game;state=null;code=null;panel.hidden=true;$("arcadeFeedback").textContent="Create a private room or join a friend's six-digit code.";
+  $("gameScreenTitle").textContent=names[game];$("gameScreenSubtitle").textContent="Two players · private room · live multiplayer";
+  $("arcadePlayerName").value=localStorage.getItem("ftw-player-name")||$("profileName")?.textContent||"Player";
+  screen.hidden=false;document.body.classList.add("game-screen-open");window.scrollTo({top:0,behavior:"smooth"});
  }
- // Quick Math
- const mq=$("mathQuestion"),ma=$("mathAnswer"),ms=$("mathSubmit"),mres=$("mathResult"),mgo=$("mathStart");
- if(mq&&ma&&ms&&mres&&mgo){let answer=0,score=0,left=30,tick=null,running=false;
-  function question(){const a=2+Math.floor(Math.random()*12),b=2+Math.floor(Math.random()*12),op=Math.random()<.5?"×":"+";answer=op==="×"?a*b:a+b;mq.textContent=a+" "+op+" "+b+" = ?";}
-  function finish(){running=false;clearInterval(tick);ma.disabled=true;ms.disabled=true;mq.textContent="Time's up!";mres.textContent="Final score: "+score;mgo.textContent="PLAY AGAIN";}
-  function submit(){if(!running||ma.value.trim()==="")return;if(Number(ma.value)===answer)score++;ma.value="";question();mres.textContent="Score: "+score+" · Time: "+left+"s";}
-  mgo.addEventListener("click",()=>{clearInterval(tick);score=0;left=30;running=true;ma.disabled=false;ms.disabled=false;mgo.textContent="RESTART";question();ma.focus();mres.textContent="Score: 0 · Time: 30s";tick=setInterval(()=>{left--;mres.textContent="Score: "+score+" · Time: "+left+"s";if(left<=0)finish();},1000);});
-  ms.addEventListener("click",submit);ma.addEventListener("keydown",e=>{if(e.key==="Enter")submit();});
+ function status(message){$("arcadeRoomStatus").textContent=message;}
+ function actionButton(label,action,disabled=false){const b=document.createElement("button");b.type="button";b.textContent=label;b.disabled=disabled;b.addEventListener("click",action);return b;}
+ function render(){
+  if(!state||!code)return;
+  $("arcadeRoomPanel").hidden=false;$("arcadeRoomTitle").textContent=names[state.game];$("arcadeRoomCode").textContent=state.code;
+  status(state.status);$("arcadePlayers").textContent=state.players.map(p=>p.name+(p.id===state.hostId?" · HOST":"")+" · "+(p.score||0)+" pts").join("   |   ");
+  $("arcadeStart").hidden=state.started||state.players.length!==2||!host;
+  $("arcadeRematch").hidden=state.started||state.players.length!==2;
+  area.hidden=!state.started&&state.game!=="ttt";area.innerHTML="";
+  const st=state.state||{};
+  if(state.game==="ttt"){
+   const board=document.createElement("div");board.className="arcade-ttt-board";
+   (state.board||Array(9).fill("")).forEach((mark,i)=>board.appendChild(actionButton(mark||"·",async()=>{const r=await emit("arcade-ttt-move",{index:i});if(!r.success)status(r.message);},!state.started||st.turn!==socket.id||!!mark)));
+   area.appendChild(board);
+  }else if(state.game==="bingo"){
+   const me=state.players.find(p=>p.id===socket.id);
+   if(me?.card){const grid=document.createElement("div");grid.className="bingo-card-grid";["B","I","N","G","O"].forEach(x=>{const h=document.createElement("b");h.textContent=x;grid.appendChild(h);});me.card.flat().forEach(n=>{const b=actionButton(n,async()=>{const r=await emit("arcade-bingo-mark",{number:n});if(!r.success)status(r.message);},!state.started||n==="FREE"||!(st.drawn||[]).includes(n));if(n==="FREE"||(me.marks||[]).includes(n))b.classList.add("marked");grid.appendChild(b);});area.appendChild(grid);}
+   const info=document.createElement("p");info.className="bingo-drawn";info.textContent="Last called: "+(st.lastNumber||"—")+" · Numbers called: "+(st.drawn||[]).length;area.appendChild(info);
+   area.appendChild(actionButton("DRAW NEXT NUMBER",async()=>{const r=await emit("arcade-bingo-draw");if(!r.success)status(r.message);},!state.started||!host));
+   area.appendChild(actionButton("CALL BINGO",async()=>{const r=await emit("arcade-bingo-claim");if(!r.success)status(r.message);},!state.started));
+  }else if(state.game==="reaction"){
+   const b=actionButton(st.phase==="go"?"TAP NOW!":st.phase==="waiting"?"WAIT FOR SIGNAL":st.phase==="early"?"FALSE START":"READY",async()=>{const r=await emit("arcade-action",{action:st.phase==="go"?"tap":"ready"});if(!r.success)status(r.message);},!state.started||st.phase==="waiting"||st.phase==="early");b.className="reaction-stage";area.appendChild(b);
+  }else if(state.game==="memory"){
+   const grid=document.createElement("div");grid.className="memory-board multiplayer-memory";
+   for(let i=0;i<16;i++){const shown=(st.matched||[]).includes(i)||(st.flipped||[]).includes(i);grid.appendChild(actionButton(shown?st.deck[i]:"?",async()=>{const r=await emit("arcade-action",{action:"flip",index:i});if(!r.success)status(r.message);},!state.started||!shown&&st.turnIndex!==state.players.findIndex(p=>p.id===socket.id)||shown||(st.matched||[]).includes(i)));}
+   area.appendChild(grid);const score=document.createElement("p");score.textContent="Pairs: "+JSON.stringify(st.pairScores||{});area.appendChild(score);
+  }else if(state.game==="math"||state.game==="word"){
+   const q=document.createElement("h2");q.className=state.game==="math"?"math-question":"word-scramble";q.textContent=state.game==="math"?(st.question?.text||"Get ready"):(st.word?.scrambled||"Get ready");area.appendChild(q);
+   const progress=document.createElement("p");progress.textContent="Round "+(st.round||1)+" / "+(st.totalRounds||10);area.appendChild(progress);
+   const input=document.createElement("input");input.className="word-answer";input.placeholder=state.game==="math"?"Your answer":"Unscrambled word";input.autocomplete="off";input.id="arcadeAnswer";area.appendChild(input);
+   area.appendChild(actionButton("SUBMIT",async()=>{const r=await emit("arcade-action",{action:"answer",answer:input.value});if(!r.success)status(r.message);else input.value="";}));
+   input.addEventListener("keydown",e=>{if(e.key==="Enter")area.querySelector("button:last-child")?.click();});
+  }
  }
- // Word Scramble
- const ws=$("wordScramble"),wa=$("wordAnswer"),wr=$("wordResult"),wg=$("wordStart");
- if(ws&&wa&&wr&&wg){const words=["PLANET","GARDEN","PUZZLE","BRIGHT","ORANGE","SILVER","PYTHON","GUITAR"];let target="";
-  function nextWord(){target=words[Math.floor(Math.random()*words.length)];let scrambled=target.split("").sort(()=>Math.random()-.5).join("");if(scrambled===target)scrambled=target.slice(1)+target[0];ws.textContent=scrambled;wa.disabled=false;wa.value="";wr.textContent="Unscramble the letters.";wg.textContent="NEW WORD";wa.focus();}
-  function check(){if(!target||wa.disabled)return;if(wa.value.trim().toUpperCase()===target){wr.textContent="Correct! Great work.";wa.disabled=true;target="";}else wr.textContent="Not quite. Try again!";}
-  wg.addEventListener("click",nextWord);wa.addEventListener("keydown",e=>{if(e.key==="Enter")check();});wa.addEventListener("change",check);
- }
- // Local two-player Tic-Tac-Toe
- const tb=$("tttBoard"),tr=$("tttResult"),reset=$("tttReset");
- if(tb&&tr&&reset){let cells=Array(9).fill(""),turn="X",done=false;const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-  function draw(){tb.innerHTML="";cells.forEach((v,i)=>{const b=document.createElement("button");b.type="button";b.className="ttt-cell";b.textContent=v;b.setAttribute("aria-label","Cell "+(i+1)+(v?", "+v:" empty"));b.disabled=!!v||done;b.addEventListener("click",()=>play(i));tb.appendChild(b);});}
-  function play(i){if(done||cells[i])return;cells[i]=turn;const win=wins.some(line=>line.every(n=>cells[n]===turn));if(win){done=true;tr.textContent="Player "+turn+" wins!";}else if(cells.every(Boolean)){done=true;tr.textContent="It's a draw!";}else{turn=turn==="X"?"O":"X";tr.textContent="Player "+turn+"'s turn.";}draw();}
-  function restart(){cells=Array(9).fill("");turn="X";done=false;tr.textContent="Player X starts.";draw();}
-  reset.addEventListener("click",restart);restart();
- }
-})();
-
-/* Multiplayer Arcade client */
-(function(){
- const $=id=>document.getElementById(id),name=$("arcadePlayerName"),type=$("arcadeGameType"),panel=$("arcadeRoomPanel"),area=$("arcadeGameArea");if(!name||!type||!panel)return;
- let code=null,host=false,state=null;
- const emit=(event,data)=>new Promise(resolve=>socket.emit(event,data||{},resolve));
- function render(){if(!state)return;$("arcadeRoomCode").textContent=state.code;$("arcadeRoomTitle").textContent=state.game==="bingo"?"Bingo Room":"Tic-Tac-Toe Room";$("arcadeRoomStatus").textContent=state.status;$("arcadePlayers").textContent=state.players.map(p=>p.name+(p.id===state.hostId?" (Host)":"")).join(" · ");$("arcadeStart").hidden=state.started||state.players.length!==2||!host;area.hidden=false;area.innerHTML="";
- if(state.game==="ttt"){const board=document.createElement("div");board.className="arcade-ttt-board";state.board.forEach((mark,i)=>{const b=document.createElement("button");b.textContent=mark||"·";b.disabled=!state.started||state.turn!==socket.id||!!mark;b.addEventListener("click",async()=>{const r=await emit("arcade-ttt-move",{index:i});if(!r.success)$("arcadeRoomStatus").textContent=r.message;});board.appendChild(b);});area.appendChild(board);}
- else{const me=state.players.find(p=>p.id===socket.id);if(me&&me.card){const grid=document.createElement("div");grid.className="bingo-card-grid";["B","I","N","G","O"].forEach(x=>{const e=document.createElement("b");e.textContent=x;grid.appendChild(e);});me.card.flat().forEach(n=>{const b=document.createElement("button");b.textContent=n;b.disabled=n==="FREE"||!state.started||!state.drawn.includes(n);if(n==="FREE"||me.marks.includes(n))b.classList.add("marked");b.addEventListener("click",async()=>{const r=await emit("arcade-bingo-mark",{number:n});if(!r.success)$("arcadeRoomStatus").textContent=r.message;});grid.appendChild(b);});area.appendChild(grid);}
- const info=document.createElement("p");info.textContent="Last called: "+(state.lastNumber||"—")+" · Drawn: "+state.drawn.length;area.appendChild(info);const draw=document.createElement("button");draw.textContent="DRAW NEXT NUMBER";draw.disabled=!state.started||!host;draw.onclick=async()=>{const r=await emit("arcade-bingo-draw");if(!r.success)$("arcadeRoomStatus").textContent=r.message;};area.appendChild(draw);const claim=document.createElement("button");claim.textContent="CALL BINGO";claim.disabled=!state.started;claim.onclick=async()=>{const r=await emit("arcade-bingo-claim");if(!r.success)$("arcadeRoomStatus").textContent=r.message;};area.appendChild(claim);}
- }
- $("arcadeCreate").onclick=async()=>{const r=await emit("arcade-create",{name:name.value,game:type.value});if(!r.success)return alert(r.message);code=r.code;host=true;panel.hidden=false;};
- $("arcadeJoin").onclick=async()=>{const r=await emit("arcade-join",{name:name.value,code:$("arcadeJoinCode").value});if(!r.success)return alert(r.message);code=r.code;host=false;panel.hidden=false;};
- $("arcadeStart").onclick=async()=>{const r=await emit("arcade-start");if(!r.success)$("arcadeRoomStatus").textContent=r.message;};
- $("arcadeLeave").onclick=async()=>{await emit("arcade-leave");code=null;state=null;panel.hidden=true;};
+ document.querySelectorAll(".mini-open-game").forEach(b=>b.addEventListener("click",()=>openGame(b.dataset.miniGame)));
+ $("arcadeCreate").addEventListener("click",async()=>{const name=$("arcadePlayerName").value.trim();localStorage.setItem("ftw-player-name",name);const r=await emit("arcade-create",{name,game:selected});if(!r.success)return $("arcadeFeedback").textContent=r.message;code=r.code;host=true;$("arcadeFeedback").textContent="Room created. Share the code with your friend.";});
+ $("arcadeJoin").addEventListener("click",async()=>{const name=$("arcadePlayerName").value.trim();localStorage.setItem("ftw-player-name",name);const r=await emit("arcade-join",{name,code:$("arcadeJoinCode").value.trim()});if(!r.success)return $("arcadeFeedback").textContent=r.message;code=r.code;host=false;$("arcadeFeedback").textContent="Joined room successfully.";});
+ $("arcadeStart").addEventListener("click",async()=>{const r=await emit("arcade-start");if(!r.success)status(r.message);});
+ $("arcadeRematch").addEventListener("click",async()=>{const r=await emit("arcade-rematch");if(!r.success)status(r.message);});
+ $("arcadeLeave").addEventListener("click",async()=>{await emit("arcade-leave");code=null;state=null;panel.hidden=true;area.innerHTML="";});
+ $("arcadeCopyCode").addEventListener("click",()=>{if(code)navigator.clipboard?.writeText(code).then(()=>$("arcadeCopyCode").textContent="COPIED").catch(()=>status("Room code: "+code));});
+ $("gameScreenBack").addEventListener("click",async()=>{if(code)await emit("arcade-leave");code=null;state=null;screen.hidden=true;document.body.classList.remove("game-screen-open");});
  socket.on("arcade-state",data=>{if(code&&data.code===code){state=data;host=data.hostId===socket.id;render();}});
+ socket.on("disconnect",()=>{if(code)status("Connection lost. Reconnect and rejoin the room.");});
 })();
-
 </script>
 
 <script>
