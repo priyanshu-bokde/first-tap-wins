@@ -1099,6 +1099,7 @@ socket.on("connect_error", function() {
   try{const data=await request(path,"POST",{name:$("accountName").value,password:$("accountPassword").value});setAccount(data);$("accountPassword").value="";message("Signed in. Your profile is now connected to your online account.");await refreshLeaderboard();}
   catch(error){message(error.message);}
  }
+ socket.on("connect",()=>{if(token)socket.emit("account-auth",token,()=>{});});
  $("accountRegister").addEventListener("click",()=>authenticate("/api/register"));
  $("accountLogin").addEventListener("click",()=>authenticate("/api/login"));
  $("accountLogout").addEventListener("click",()=>{token="";localStorage.removeItem(TOKEN_KEY);$("accountLogout").hidden=true;message("Signed out. Your online profile remains saved.");});
