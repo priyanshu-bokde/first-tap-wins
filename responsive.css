@@ -1,3 +1,4 @@
+html { scroll-behavior: smooth; scroll-padding-top: 24px; }
 :root{--blue:#2563eb;--blue-dark:#1d4ed8;--blue-soft:#eff6ff;--ink:#17243b;--muted:#64748b;--border:#e5eaf2;--page:#f5f7fb}
 html{scroll-padding-top:24px}body{background:var(--page);color:var(--ink);font-family:Inter,Arial,sans-serif;overflow-x:clip}.background-glow{display:none}
 .sidebar{position:fixed;inset:0 auto 0 0;z-index:30;width:248px;padding:30px 20px;display:flex;flex-direction:column;background:#fff;border-right:1px solid var(--border)}
@@ -291,3 +292,19 @@ footer{margin:20px 0 0 248px;padding:22px 30px;border-top:1px solid var(--border
 
 /* Phase 7 account and global ranking */
 .account-access,.global-leaderboard{padding:15px;margin-top:12px;border:1px solid var(--border);border-radius:14px;background:#fbfdff}.account-access>strong,.global-leaderboard>strong{display:block;color:var(--ink);font-size:13px}.account-access>p{margin:5px 0 10px;color:var(--muted);font-size:11px}.account-access label{display:block;margin:8px 0 4px;color:var(--muted);font-size:10px;font-weight:750}.account-access input{box-sizing:border-box;width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;background:white;color:var(--ink);font:inherit;font-size:12px}.account-actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}.account-actions button{padding:8px 11px;border:0;border-radius:8px;background:var(--blue);color:white;font-size:10px;font-weight:800;cursor:pointer}.account-actions button[hidden]{display:none}.account-access #accountMessage{margin-bottom:0}.global-leaderboard ol{display:grid;gap:6px;margin:9px 0 0;padding-left:20px;color:var(--muted);font-size:11px}
+
+
+.game-screen[hidden], .profile-edit-modal[hidden] { display:none !important; }
+.game-screen { position:fixed; inset:0; z-index:1000; overflow-y:auto; background:#f7fbff; padding:clamp(18px,4vw,48px); }
+.game-screen-header { max-width:1100px; margin:0 auto 26px; display:flex; align-items:flex-start; gap:24px; }
+.game-screen-header h2 { margin:8px 0 4px; color:#132b4d; font-size:clamp(28px,4vw,42px); }
+.game-screen-header p { margin:0; color:#60758f; }
+.game-screen-back { flex:0 0 auto; border:1px solid #c8d9ec; background:#fff; color:#1769b0; border-radius:12px; padding:12px 16px; font-weight:800; cursor:pointer; }
+.game-screen-content { max-width:1100px; margin:0 auto 40px; }
+.game-screen-content > .mini-game-card, .game-screen-content > .arcade-multiplayer { width:100%; max-width:900px; margin:0 auto; box-shadow:0 18px 50px rgba(28,75,120,.10); }
+.game-screen-content .mini-game-card { display:block; }
+.open-game-screen, .open-multiplayer-game { width:100%; margin-top:10px; border:1px solid #c7d9eb; background:#edf6ff; color:#1769b0; border-radius:12px; padding:12px 16px; font-weight:800; cursor:pointer; }
+.game-screen-open { overflow:hidden; }
+.profile-edit-box form { display:grid; gap:12px; }
+.profile-edit-box form input, .profile-edit-box form select { width:100%; padding:13px; border:1px solid #cbd8e6; border-radius:10px; font:inherit; }
+@media (max-width:700px) { .game-screen-header { flex-direction:column; gap:14px; } .game-screen-back { width:100%; } }
