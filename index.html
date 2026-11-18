@@ -576,8 +576,16 @@ function enterLobby(code, host, settings) {
         currentRoomSettings.roomName || "Quiz Battle";
     document.getElementById("lobbyRounds").textContent =
         currentRoomSettings.rounds || "—";
+    const categoryLabels = {
+        mixed: "Mixed Questions", gk: "General Knowledge", india: "India",
+        geography: "Geography", history: "History", technology: "Technology",
+        sports: "Sports", maths: "Mathematics", science: "Science",
+        alphabet: "Alphabet Challenge", riddles: "Riddles"
+    };
+    const categoryLabel = categoryLabels[currentRoomSettings.category] || "Mixed Questions";
+    const difficultyLabel = (currentRoomSettings.difficulty || "mixed").replace(/^./, letter => letter.toUpperCase());
     document.getElementById("lobbyCategory").textContent =
-        currentRoomSettings.category || "Mixed";
+        categoryLabel + " · " + difficultyLabel;
     document.getElementById("lobbyStatus").textContent =
         "Waiting for players to join...";
     document.getElementById("startGameBtn").hidden = !host;
