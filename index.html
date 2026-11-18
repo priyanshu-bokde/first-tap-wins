@@ -528,7 +528,7 @@ const socket=io(); window.socket=socket;
   const st=state.state||{};
   if(state.game==="ttt"){
    const board=document.createElement("div");board.className="arcade-ttt-board";
-   (state.board||Array(9).fill("")).forEach((mark,i)=>board.appendChild(actionButton(mark||"·",async()=>{const r=await emit("arcade-ttt-move",{index:i});if(!r.success)status(r.message);},!state.started||st.turn!==socket.id||!!mark)));
+   (state.board||Array(9).fill("")).forEach((mark,i)=>board.appendChild(actionButton(mark||"·",async()=>{const r=await emit("arcade-ttt-move",{index:i});if(!r.success)status(r.message);},!state.started||state.turn!==socket.id||!!mark)));
    area.appendChild(board);
   }else if(state.game==="bingo"){
    const me=state.players.find(p=>p.id===socket.id);
