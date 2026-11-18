@@ -559,7 +559,7 @@ const arcadeRooms = new Map();
 const arcadeWins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
 const arcadeWords = ["PLANET","GARDEN","PUZZLE","BRIGHT","ORANGE","SILVER","PYTHON","GUITAR","GALAXY","POCKET"];
 function arcadeCode(){let code;do{code=String(Math.floor(100000+Math.random()*900000));}while(arcadeRooms.has(code));return code;}
-function bingoCard(){const cols=[];for(let c=0;c<5;c++){const start=c*15+1;cols.push(shuffle(Array.from({length:15},(_,i)=>start+i)).slice(0,5));}return Array.from({length:5},(_,r)=>Array.from({length:5},(_,c)=>cols[c][r]));}
+function bingoCard(){const cols=[];for(let c=0;c<5;c++){const start=c*15+1;cols.push(shuffle(Array.from({length:15},(_,i)=>start+i)).slice(0,5));}const card=Array.from({length:5},(_,r)=>Array.from({length:5},(_,c)=>cols[c][r]));card[2][2]="FREE";return card;}
 function arcadeQuestion(){const a=2+Math.floor(Math.random()*18),b=2+Math.floor(Math.random()*12),op=Math.random()<.5?"+":"×";return {text: a+" "+op+" "+b+" = ?",answer:op==="+"?a+b:a*b};}
 function arcadeWord(){const word=arcadeWords[Math.floor(Math.random()*arcadeWords.length)];let scrambled=shuffle(word.split("")).join("");if(scrambled===word)scrambled=word.slice(1)+word[0];return {word,scrambled};}
 function initArcadeGame(room){
@@ -659,7 +659,7 @@ io.on("connection",socket=>{
    room.flipped.push(index);
    if(room.flipped.length===2){
     const [a,b]=room.flipped;
-    if(room.deck[a]===room.deck[b]){room.matched.push(a,b);room.pairScores[socket.id]=(room.pairScores[socket.id]||0)+1;room.flipped=[];if(room.matched.length===16){const winner=[...room.players.keys()].sort((x,y)=>(room.pairScores[y]||0)-(room.pairScores[x]||0))[0];arcadeFinish(room,room.players.get(winner).name+" wins Memory Match!",winner);}else room.status="Pair found! Same player plays again.";}
+    if(room.deck[a]===room.deck[b]){room.matched.push(a,b);room.pairScores[socket.id]=(room.pairScores[socket.id]||0)+1;player.score=room.pairScores[socket.id];room.flipped=[];if(room.matched.length===16){const winner=[...room.players.keys()].sort((x,y)=>(room.pairScores[y]||0)-(room.pairScores[x]||0))[0];arcadeFinish(room,room.players.get(winner).name+" wins Memory Match!",winner);}else room.status="Pair found! Same player plays again.";}
     else{room.status="No match. Turn changes.";arcadeBroadcast(room);setTimeout(()=>{if(!room.started)return;room.flipped=[];room.turnIndex=(room.turnIndex+1)%2;room.status=room.players.get([...room.players.keys()][room.turnIndex]).name+"'s turn";arcadeBroadcast(room);},900);return cb({success:true});}
    }
    arcadeBroadcast(room);return cb({success:true});
