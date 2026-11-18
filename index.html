@@ -352,6 +352,7 @@
             </div>
         </section>
         <div class="game-footer-note">Correct answer: +100 points · Fastest player gets the first chance</div>
+        <button type="button" class="back-dashboard-btn" id="backToDashboardBtn" hidden>BACK TO DASHBOARD <span>→</span></button>
     </main>
 </div>
 
@@ -647,6 +648,12 @@ document.getElementById("gameLeaveBtn").addEventListener("click", function() {
     stopGameClock();
     socket.emit("leave-room", function() { window.location.reload(); });
 });
+document.getElementById("backToDashboardBtn").addEventListener("click", function() {
+    stopGameClock();
+    this.disabled = true;
+    this.textContent = "RETURNING...";
+    socket.emit("leave-room", function() { window.location.reload(); });
+});
 
 socket.on("game-started", function() {
     const number = document.getElementById("countdownNumber");
@@ -735,6 +742,7 @@ socket.on("game-over", function(data) {
     document.getElementById("buzzButton").hidden = true;
     document.getElementById("buzzerHelp").textContent = "Thanks for playing First Tap Wins!";
     document.getElementById("gameTimer").textContent = "DONE";
+    document.getElementById("backToDashboardBtn").hidden = false;
     const grid = document.getElementById("answerGrid");
     grid.innerHTML = "";
     (data.leaderboard || []).forEach(function(player, index) {
