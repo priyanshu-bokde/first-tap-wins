@@ -540,6 +540,7 @@
 
 <script>
 const socket = io();
+window.socket = socket;
 
 let currentRoomCode = null;
 let amHost = false;
@@ -583,6 +584,7 @@ document.querySelectorAll(".modal-overlay").forEach(modal => {
 
 function enterLobby(code, host, settings) {
     currentRoomCode = code;
+    window.currentRoomCode = code;
     amHost = host;
     currentRoomSettings = settings || {};
     document.getElementById("lobbyRoomCode").textContent = code;
@@ -669,6 +671,7 @@ document.getElementById("createForm").addEventListener("submit", function(event)
         difficulty: document.getElementById("difficulty").value
     };
 
+    window.currentPlayerName = data.name;
     socket.emit("create-room", data, function(result) {
         if (!result || !result.success) {
             alert(result?.message || "Could not create room. Please try again.");
@@ -687,6 +690,7 @@ document.getElementById("joinForm").addEventListener("submit", function(event) {
         name: document.getElementById("joinName").value.trim()
     };
 
+    window.currentPlayerName = data.name;
     socket.emit("join-room", data, function(result) {
         if (!result || !result.success) {
             alert(result?.message || "Could not join room. Please try again.");
