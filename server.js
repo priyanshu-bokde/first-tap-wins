@@ -566,7 +566,7 @@ function initArcadeGame(room){
  room.started=true;room.status="Game in progress";
  if(room.game==="ttt"){room.board=Array(9).fill("");room.turn=room.hostId;room.winner=null;}
  if(room.game==="bingo"){room.drawn=[];room.lastNumber=null;for(const p of room.players.values()){p.card=bingoCard();p.marks=[];}}
- if(room.game==="reaction"){room.phase="ready";room.winner=null;room.reactionStartedAt=null;room.scores={};}
+ if(room.game==="reaction"){room.phase="waiting";room.winner=null;room.reactionStartedAt=null;room.scores={};room.status="Wait for the signal…";room.reactionTimer=setTimeout(()=>{if(!room.started||room.phase!=="waiting")return;room.phase="go";room.reactionStartedAt=Date.now();room.status="TAP NOW!";arcadeBroadcast(room);},1200+Math.floor(Math.random()*2800));}
  if(room.game==="memory"){const faces=["★","●","◆","▲","♥","☀","♣","✦"];room.deck=shuffle(faces.concat(faces));room.matched=[];room.flipped=[];room.turnIndex=0;room.pairScores={};}
  if(room.game==="math"){room.round=1;room.totalRounds=10;room.question=arcadeQuestion();room.scores={};}
  if(room.game==="word"){room.round=1;room.totalRounds=8;room.word=arcadeWord();room.scores={};}
@@ -648,9 +648,6 @@ io.on("connection",socket=>{
   if(!room||!room.started)return cb({success:false,message:"The game is not active."});
   const player=room.players.get(socket.id),action=String(payload.action||"");
   if(room.game==="reaction"){
-   if(action==="ready"&&room.phase==="ready"){
-    room.phase="waiting";room.status="Wait for the signal…";room.reactionTimer=setTimeout(()=>{if(!room.started||room.phase!=="waiting")return;room.phase="go";room.reactionStartedAt=Date.now();room.status="TAP NOW!";arcadeBroadcast(room);},1200+Math.floor(Math.random()*2800));arcadeBroadcast(room);return cb({success:true});
-   }
    if(action==="tap"){
     if(room.phase==="waiting"){room.phase="early";room.status=player.name+" tapped too early. Rematch to try again.";if(room.reactionTimer)clearTimeout(room.reactionTimer);room.started=false;arcadeBroadcast(room);return cb({success:true});}
     if(room.phase!=="go")return cb({success:false,message:"Wait for the signal."});
