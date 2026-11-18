@@ -124,8 +124,87 @@ const QUESTION_BANK = {
     { q: "What has a bottom at the top?", options: ["A leg", "A hill", "A bottle", "A shoe"], answer: 2 },
     { q: "What can fill a room but takes up no space?", options: ["Furniture", "Light", "Water", "Air"], answer: 1 },
     { q: "What has branches but no fruit, trunk or leaves?", options: ["A bank", "A river", "A road", "A family"], answer: 0 }
+  ],
+  india: [
+    { q: "What is the capital of Rajasthan?", options: ["Jaipur", "Jodhpur", "Udaipur", "Ajmer"], answer: 0 },
+    { q: "Which Indian state is famous for the dance form Kathakali?", options: ["Punjab", "Kerala", "Gujarat", "Assam"], answer: 1 },
+    { q: "Which river is often called the Ganga's largest tributary?", options: ["Yamuna", "Narmada", "Godavari", "Kaveri"], answer: 0 },
+    { q: "Who was the first President of India?", options: ["S. Radhakrishnan", "Rajendra Prasad", "Zakir Husain", "V. V. Giri"], answer: 1 },
+    { q: "Which Indian city is known as the Pink City?", options: ["Jaisalmer", "Jaipur", "Bhopal", "Lucknow"], answer: 1 },
+    { q: "Which is the largest Indian state by area?", options: ["Madhya Pradesh", "Maharashtra", "Rajasthan", "Uttar Pradesh"], answer: 2 },
+    { q: "The Ajanta caves are located in which state?", options: ["Maharashtra", "Bihar", "Odisha", "Karnataka"], answer: 0 },
+    { q: "Which movement began with the Dandi March in 1930?", options: ["Quit India", "Non-Cooperation", "Civil Disobedience", "Swadeshi"], answer: 2 },
+    { q: "Which schedule of the Indian Constitution lists recognized languages?", options: ["Fifth", "Seventh", "Eighth", "Tenth"], answer: 2 },
+    { q: "Which Indian space mission entered Mars orbit in 2014?", options: ["Chandrayaan-1", "Mangalyaan", "Astrosat", "Aditya-L1"], answer: 1 },
+    { q: "Who was the first woman to become a state chief minister in India?", options: ["Sucheta Kriplani", "Indira Gandhi", "Sarojini Naidu", "Vijaya Raje Scindia"], answer: 0 },
+    { q: "Which article of the Indian Constitution deals with the abolition of untouchability?", options: ["Article 14", "Article 17", "Article 19", "Article 21"], answer: 1 }
+  ],
+  geography: [
+    { q: "Which is the largest continent?", options: ["Africa", "Asia", "Europe", "South America"], answer: 1 },
+    { q: "Which ocean is the smallest?", options: ["Arctic", "Indian", "Atlantic", "Southern"], answer: 0 },
+    { q: "The Andes mountains are mainly in which continent?", options: ["Asia", "Europe", "South America", "Africa"], answer: 2 },
+    { q: "Which country has the city of Istanbul?", options: ["Greece", "Turkey", "Bulgaria", "Egypt"], answer: 1 },
+    { q: "Which river flows through Egypt?", options: ["Amazon", "Danube", "Nile", "Mekong"], answer: 2 },
+    { q: "Which is the world's largest island, excluding continental landmasses?", options: ["Madagascar", "Borneo", "Greenland", "New Guinea"], answer: 2 },
+    { q: "The Equator passes through which of these countries?", options: ["India", "Ecuador", "Japan", "Italy"], answer: 1 },
+    { q: "Which strait separates Asia and North America?", options: ["Gibraltar", "Bering", "Malacca", "Hormuz"], answer: 1 },
+    { q: "Which country is completely surrounded by South Africa?", options: ["Eswatini", "Lesotho", "Botswana", "Namibia"], answer: 1 },
+    { q: "The Atacama Desert is primarily located in which country?", options: ["Chile", "Peru", "Mexico", "Argentina"], answer: 0 },
+    { q: "Which sea has the lowest exposed land elevation on Earth at its shore?", options: ["Black Sea", "Dead Sea", "Caspian Sea", "Red Sea"], answer: 1 },
+    { q: "Which mountain range traditionally marks part of the boundary between Europe and Asia?", options: ["Alps", "Andes", "Urals", "Rockies"], answer: 2 }
+  ],
+  history: [
+    { q: "Who was the first emperor of the Maurya Empire?", options: ["Ashoka", "Bindusara", "Chandragupta Maurya", "Harsha"], answer: 2 },
+    { q: "The ancient Olympic Games began in which country?", options: ["Italy", "Greece", "Egypt", "Persia"], answer: 1 },
+    { q: "Who was known as the Iron Man of India?", options: ["Jawaharlal Nehru", "Sardar Vallabhbhai Patel", "Subhas Chandra Bose", "B. R. Ambedkar"], answer: 1 },
+    { q: "In which year did India become independent?", options: ["1945", "1946", "1947", "1950"], answer: 2 },
+    { q: "Which Mughal emperor commissioned the Taj Mahal?", options: ["Akbar", "Babur", "Shah Jahan", "Aurangzeb"], answer: 2 },
+    { q: "The Renaissance began in which European country?", options: ["France", "Italy", "Germany", "Spain"], answer: 1 },
+    { q: "Who led the Salt March in 1930?", options: ["Mahatma Gandhi", "Bhagat Singh", "Bal Gangadhar Tilak", "Lala Lajpat Rai"], answer: 0 },
+    { q: "Which civilization developed cuneiform writing?", options: ["Roman", "Sumerian", "Mayan", "Inca"], answer: 1 },
+    { q: "The Treaty of Versailles was signed in which year?", options: ["1914", "1918", "1919", "1925"], answer: 2 },
+    { q: "Who was the last ruler of the Ptolemaic Kingdom of Egypt?", options: ["Nefertiti", "Cleopatra VII", "Hatshepsut", "Ankhesenamun"], answer: 1 },
+    { q: "Which event is generally considered the immediate trigger of World War I?", options: ["Invasion of Poland", "Assassination of Archduke Franz Ferdinand", "Russian Revolution", "Treaty of Versailles"], answer: 1 },
+    { q: "The Meiji Restoration began in which year?", options: ["1603", "1750", "1868", "1912"], answer: 2 }
+  ],
+  technology: [
+    { q: "What does CPU stand for?", options: ["Central Processing Unit", "Computer Power Utility", "Core Program Unit", "Central Program User"], answer: 0 },
+    { q: "Which language is primarily used to structure web pages?", options: ["HTML", "SQL", "C++", "Python"], answer: 0 },
+    { q: "What does URL stand for?", options: ["Universal Record Link", "Uniform Resource Locator", "Unified Reference Line", "User Route Link"], answer: 1 },
+    { q: "Which device is used to connect different networks?", options: ["Keyboard", "Router", "Monitor", "Printer"], answer: 1 },
+    { q: "What does RAM mainly provide to a computer?", options: ["Long-term storage", "Temporary working memory", "Internet access", "Power backup"], answer: 1 },
+    { q: "Which company created the Android operating system originally?", options: ["Apple", "Google", "Microsoft", "IBM"], answer: 1 },
+    { q: "Which protocol is commonly used to load secure websites?", options: ["FTP", "HTTP", "HTTPS", "SMTP"], answer: 2 },
+    { q: "What does CSS control in a web page?", options: ["Structure", "Styling and layout", "Database storage", "Server hosting"], answer: 1 },
+    { q: "What is the main purpose of a database index?", options: ["Encrypt every row", "Speed up data lookup", "Replace backups", "Create user accounts"], answer: 1 },
+    { q: "Which data structure follows the last-in, first-out principle?", options: ["Queue", "Stack", "Tree", "Graph"], answer: 1 },
+    { q: "What does API commonly stand for?", options: ["Application Programming Interface", "Applied Program Internet", "Automated Process Input", "Application Protocol Index"], answer: 0 },
+    { q: "Which number system is used internally by digital computers?", options: ["Decimal", "Binary", "Roman", "Hexadecimal only"], answer: 1 }
+  ],
+  sports: [
+    { q: "How many players from one cricket team are on the field during play?", options: ["9", "10", "11", "12"], answer: 2 },
+    { q: "Which sport uses a shuttlecock?", options: ["Tennis", "Badminton", "Squash", "Table tennis"], answer: 1 },
+    { q: "How many rings are on the Olympic symbol?", options: ["4", "5", "6", "7"], answer: 1 },
+    { q: "In football, what is the usual term for scoring three goals by one player in a match?", options: ["Triple", "Hat-trick", "Treble save", "Clean sheet"], answer: 1 },
+    { q: "Which country won the first men's Cricket World Cup in 1975?", options: ["India", "Australia", "West Indies", "England"], answer: 2 },
+    { q: "How many points is a free throw worth in basketball?", options: ["1", "2", "3", "4"], answer: 0 },
+    { q: "The term 'love' is used for a score of zero in which sport?", options: ["Hockey", "Tennis", "Golf", "Boxing"], answer: 1 },
+    { q: "Which Indian athlete is known as the Flying Sikh?", options: ["Neeraj Chopra", "Milkha Singh", "P. T. Usha", "Dhanraj Pillay"], answer: 1 },
+    { q: "In chess, which piece moves in an L-shape?", options: ["Bishop", "Knight", "Rook", "Queen"], answer: 1 },
+    { q: "Which country hosted the first modern Olympic Games in 1896?", options: ["France", "Greece", "United Kingdom", "Italy"], answer: 1 },
+    { q: "In Formula One, what flag signals the end of a race?", options: ["Red", "Yellow", "Chequered", "Blue"], answer: 2 },
+    { q: "Which athletics event combines ten track-and-field disciplines?", options: ["Heptathlon", "Decathlon", "Pentathlon", "Triathlon"], answer: 1 }
   ]
 };
+
+// Give every category a balanced easy / medium / hard question pool.
+Object.values(QUESTION_BANK).forEach(questions => {
+  const easyEnd = Math.ceil(questions.length / 3);
+  const mediumEnd = Math.ceil((questions.length * 2) / 3);
+  questions.forEach((question, index) => {
+    question.difficulty = index < easyEnd ? "easy" : index < mediumEnd ? "medium" : "hard";
+  });
+});
 
 function shuffle(items) {
   const copy = [...items];
@@ -180,7 +259,7 @@ function leaveRoom(socket, roomCode) {
     nextHost.isHost = true;
     io.to(roomCode).emit("room-notice", "The host left. A new host has been selected.");
   }
-  if (room.inGame && room.players.size < 2) {
+  if (room.inGame && room.players.size < 1) {
     clearGameTimers(room);
     room.inGame = false;
     io.to(roomCode).emit("game-paused", "A player left. At least two players are needed to continue.");
@@ -226,13 +305,14 @@ io.on("connection", socket => {
     const maxPlayers = Number(data?.maxPlayers);
     const rounds = Number(data?.rounds);
     const category = String(data?.category || "mixed");
-    if (!name || !Number.isInteger(maxPlayers) || maxPlayers < 2 || maxPlayers > 15)
+    if (!name || !Number.isInteger(maxPlayers) || maxPlayers < 1 || maxPlayers > 30)
       return callback({ success: false, message: "Invalid room settings." });
     const code = generateRoomCode();
     rooms.set(code, {
       hostId: socket.id, maxPlayers, roomName,
       rounds: Number.isInteger(rounds) ? Math.min(20, Math.max(1, rounds)) : 10,
       category: (category === "mixed" || QUESTION_BANK[category]) ? category : "mixed",
+      difficulty: ["mixed", "easy", "medium", "hard"].includes(data?.difficulty) ? data.difficulty : "mixed",
       players: new Map([[socket.id, { id: socket.id, name, isHost: true, score: 0 }]]),
       gameStarting: false, countdownTimer: null, questionTimer: null, answerTimer: null, nextTimer: null,
       inGame: false, phase: "lobby", roundIndex: 0, questions: [], currentQuestion: null, buzzedBy: null
@@ -254,7 +334,7 @@ io.on("connection", socket => {
       return callback({ success: false, message: "Username already taken." });
     room.players.set(socket.id, { id: socket.id, name, isHost: false, score: 0 });
     socket.join(code);
-    callback({ success: true, code, settings: { roomName: room.roomName, rounds: room.rounds, category: room.category } });
+    callback({ success: true, code, settings: { roomName: room.roomName, rounds: room.rounds, category: room.category, difficulty: room.difficulty } });
     sendPlayers(code);
     console.log(name, "joined room:", code);
   });
@@ -264,7 +344,7 @@ io.on("connection", socket => {
     if (!entry) return callback({ success: false, message: "You are not in a room." });
     const [code, room] = entry;
     if (room.hostId !== socket.id) return callback({ success: false, message: "Only the host can start the game." });
-    if (room.players.size < 2) return callback({ success: false, message: "At least 2 players are needed." });
+    if (room.players.size < 1) return callback({ success: false, message: "At least 1 player is needed." });
     if (room.gameStarting || room.inGame) return callback({ success: false, message: "The game is already starting or running." });
     room.gameStarting = true;
     const duration = 10;
@@ -279,11 +359,14 @@ io.on("connection", socket => {
       active.inGame = true;
       active.phase = "buzz";
       const category = active.category;
-      const pool = category === "mixed" ? Object.values(QUESTION_BANK).flat() : (QUESTION_BANK[category] || QUESTION_BANK.gk);
+      const categoryPool = category === "mixed" ? Object.values(QUESTION_BANK).flat() : (QUESTION_BANK[category] || QUESTION_BANK.gk);
+      const selectedPool = active.difficulty === "mixed"
+        ? categoryPool
+        : categoryPool.filter(question => question.difficulty === active.difficulty);
+      const pool = selectedPool.length ? selectedPool : categoryPool;
       active.questions = shuffle(pool).slice(0, active.rounds);
-      if (active.questions.length < active.rounds) {
-        const extra = shuffle(pool).slice(0, active.rounds - active.questions.length);
-        active.questions.push(...extra);
+      while (active.questions.length < active.rounds) {
+        active.questions.push(...shuffle(pool).slice(0, active.rounds - active.questions.length));
       }
       active.roundIndex = 0;
       active.players.forEach(p => p.score = 0);
