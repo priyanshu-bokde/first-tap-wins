@@ -29,6 +29,20 @@
 
     <div class="dashboard-shell" id="home">
     <header class="dashboard-topbar"><div><span class="topbar-eyebrow">YOUR GAME SPACE</span><h2>Welcome to First Tap Wins</h2></div><a class="topbar-play" href="#play">Start playing <span>↗</span></a></header>
+<section class="player-profile" id="playerProfile" aria-labelledby="profileTitle">
+ <div class="profile-main">
+  <div class="profile-avatar" id="profileAvatar" aria-hidden="true">🎮</div>
+  <div class="profile-identity"><span class="section-kicker">PLAYER PROFILE</span><h2 id="profileTitle">Your player card</h2><p id="profileName">Guest Player</p><button type="button" class="profile-edit" id="profileEdit">EDIT PROFILE</button></div>
+ </div>
+ <div class="profile-progress">
+  <div class="profile-stats"><div><strong id="profileLevel">1</strong><span>LEVEL</span></div><div><strong id="profileXp">0</strong><span>TOTAL XP</span></div><div><strong id="profileMatches">0</strong><span>MATCHES</span></div><div><strong id="profileWins">0</strong><span>WINS</span></div></div>
+  <div class="xp-track" role="progressbar" aria-label="Progress to next level" aria-valuemin="0" aria-valuemax="250" aria-valuenow="0"><span id="profileXpBar"></span></div>
+  <p id="profileNextLevel">250 XP to Level 2</p>
+ </div>
+ <div class="profile-achievements"><strong>Achievements</strong><div id="profileBadges"><span class="achievement-locked">Complete your first quiz to unlock a badge</span></div></div>
+ <div class="profile-history"><strong>Recent quiz matches</strong><ol id="profileHistory"><li>No matches recorded yet.</li></ol></div>
+ <p class="profile-storage-note">Progress is saved on this device. Online accounts and cross-device stats are planned for Phase 7.</p>
+</section>
     <main class="hero">
 
         <div class="hero-content">
@@ -917,6 +931,7 @@ socket.on("answer-timeout", function(data) {
     updateGameScores(data.scores);
 });
 socket.on("game-over", function(data) {
+    recordProfileMatch(data.leaderboard || []);
     stopGameClock();
     canAnswer = false;
     setOptionsEnabled(false);
@@ -974,6 +989,67 @@ socket.on("connect_error", function() {
 </script>
 
 
+
+
+<script>
+/* Phase 6: local player profile, XP, achievements and match history. */
+(function(){
+ const KEY="ftw-player-profile-v1";
+ const defaults={name:"Guest Player",avatar:"🎮",xp:0,matches:0,wins:0,history:[],badges:[]};
+ let profile;
+ try{profile=Object.assign({},defaults,JSON.parse(localStorage.getItem(KEY)||"{}"));}catch{profile={...defaults};}
+ const $=id=>document.getElementById(id);
+ function level(){return Math.floor(profile.xp/250)+1;}
+ function save(){try{localStorage.setItem(KEY,JSON.stringify(profile));}catch(e){console.warn("Could not save player progress",e);}render();}
+ function unlock(id,label){if(!profile.badges.some(b=>b.id===id))profile.badges.push({id,label});}
+ function render(){
+  if(!$("profileName"))return;
+  $("profileName").textContent=profile.name;
+  $("profileAvatar").textContent=profile.avatar;
+  $("profileLevel").textContent=level();
+  $("profileXp").textContent=profile.xp;
+  $("profileMatches").textContent=profile.matches;
+  $("profileWins").textContent=profile.wins;
+  const into=profile.xp%250;
+  $("profileXpBar").style.width=(into/250*100)+"%";
+  $("profileXpBar").parentElement.setAttribute("aria-valuenow",String(into));
+  $("profileNextLevel").textContent=(250-into)+" XP to Level "+(level()+1);
+  const badges=$("profileBadges");badges.innerHTML="";
+  if(!profile.badges.length){const empty=document.createElement("span");empty.className="achievement-locked";empty.textContent="Complete your first quiz to unlock a badge";badges.appendChild(empty);}
+  profile.badges.forEach(b=>{const el=document.createElement("span");el.className="achievement-badge";el.textContent="🏅 "+b.label;badges.appendChild(el);});
+  const history=$("profileHistory");history.innerHTML="";
+  if(!profile.history.length){const li=document.createElement("li");li.textContent="No matches recorded yet.";history.appendChild(li);}
+  profile.history.slice(0,5).forEach(item=>{const li=document.createElement("li");li.textContent=item.date+" · "+item.result+" · "+item.score+" pts";history.appendChild(li);});
+ }
+ window.recordProfileMatch=function(leaderboard){
+  if(!Array.isArray(leaderboard)||!leaderboard.length)return;
+  const room=window.currentRoomCode||"";
+  if(room&&profile.history.some(x=>x.room===room))return;
+  const me=leaderboard.find(p=>p.id===window.socket?.id)||leaderboard.find(p=>p.name===window.currentPlayerName);
+  if(!me)return;
+  const winner=leaderboard[0],won=winner.id===me.id;
+  const gained=50+(won?25:0);
+  profile.matches++;if(won)profile.wins++;profile.xp+=gained;
+  profile.history.unshift({room,date:new Date().toLocaleDateString(),result:won?"1st place":"Played",score:Number(me.score)||0});
+  profile.history=profile.history.slice(0,10);
+  unlock("first-match","First Match");
+  if(profile.wins>0)unlock("first-win","First Win");
+  if(profile.matches>=5)unlock("five-matches","5 Matches");
+  if(profile.xp>=500)unlock("xp-500","500 XP");
+  save();
+ };
+ $("profileEdit")?.addEventListener("click",()=>{
+  const name=prompt("Choose your player name (up to 20 characters):",profile.name);
+  if(name===null)return;
+  const clean=name.trim().slice(0,20);if(clean)profile.name=clean;
+  const avatars=["🎮","⚡","🚀","🦊","🐼","🌟","🏆","🐯"];
+  const next=avatars[(avatars.indexOf(profile.avatar)+1+avatars.length)%avatars.length];
+  if(confirm("Change your profile avatar to "+next+"?"))profile.avatar=next;
+  save();
+ });
+ render();
+})();
+</script>
 
 </body>
 </html>
