@@ -234,3 +234,23 @@ footer{margin:20px 0 0 248px;padding:22px 30px;border-top:1px solid var(--border
 .game-hub-coming{display:inline-block;padding:9px 11px;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;color:#64748b;font-size:9px;font-weight:800;letter-spacing:.05em}
 @media(max-width:900px){.game-hub-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.coming-hub-card{grid-column:1/-1}}
 @media(max-width:600px){.game-hub-section{margin:18px 0 24px;padding:20px 16px}.game-hub-heading{align-items:flex-start;flex-direction:column}.game-hub-grid{grid-template-columns:1fr}.coming-hub-card{grid-column:auto}.game-hub-copy p{min-height:0}.game-hub-art{min-height:94px}}
+
+/* Phase 3 playable mini-game controls */
+.playable-card{display:flex;flex-direction:column}
+.memory-board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;width:100%;margin:14px 0 8px}
+.memory-tile{min-width:0;aspect-ratio:1/1;border:1px solid #cfe0f7;border-radius:9px;background:#eaf2ff;color:#245da8;font-size:clamp(16px,2vw,23px);font-weight:800;cursor:pointer}
+.memory-tile:hover{background:#dbeafe}
+.memory-tile.revealed{background:#fff;border-color:#60a5fa}
+.memory-tile.matched{background:#effdf4;border-color:#86efac;color:#15803d;cursor:default}
+.mini-game-result{min-height:22px;margin:5px 0 12px;color:#52647d;font-size:11px;font-weight:700}
+.math-question,.word-scramble{display:grid;place-items:center;min-height:76px;margin:14px 0 10px;padding:12px;border:1px solid #dbeafe;border-radius:12px;background:#eff6ff;color:#1e40af;font-size:23px;font-weight:900;letter-spacing:.08em;text-align:center}
+.math-controls{display:grid;grid-template-columns:minmax(0,1fr) 54px;gap:8px;margin-bottom:7px}
+.math-controls input,.word-answer{width:100%;min-width:0;padding:11px 12px;border:1px solid #d5e1ef;border-radius:9px;background:#fff;color:#17243b;font:inherit;font-size:13px}
+.math-controls input:focus,.word-answer:focus{outline:2px solid #93c5fd;outline-offset:1px}
+.math-controls button{border:0;border-radius:9px;background:#2563eb;color:#fff;font-weight:800;cursor:pointer}
+.math-controls button:disabled,.math-controls input:disabled,.word-answer:disabled{opacity:.55;cursor:not-allowed}
+.word-answer{margin:0 0 8px;text-transform:uppercase}
+.ttt-board{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;width:min(100%,210px);margin:14px auto 8px}
+.ttt-cell{aspect-ratio:1/1;border:1px solid #cfe0f7;border-radius:10px;background:#eff6ff;color:#1e40af;font-size:27px;font-weight:900;cursor:pointer}
+.ttt-cell:disabled{background:#f8fafc;color:#2563eb;cursor:default}
+@media(max-width:600px){.memory-board{gap:6px}.memory-tile{border-radius:7px}.math-question,.word-scramble{min-height:66px}}
