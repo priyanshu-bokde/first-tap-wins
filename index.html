@@ -40,7 +40,7 @@
   <p id="profileNextLevel">250 XP to Level 2</p>
  </div>
  <div class="profile-achievements"><strong>Achievements</strong><div id="profileBadges"><span class="achievement-locked">Complete your first quiz to unlock a badge</span></div></div>
- <div class="profile-history"><strong>Recent quiz matches</strong><ol id="profileHistory"><li>No matches recorded yet.</li></ol></div>
+ <div class="profile-history"><strong>Recent matches</strong><ol id="profileHistory"><li>No matches recorded yet.</li></ol></div>
  <p class="profile-storage-note">Your player card, achievements and progress are saved on this device. No account or sign-in required.</p>
 
 </section>
@@ -513,7 +513,7 @@ const socket=io(); window.socket=socket;
  function openGame(game){
   selected=game;state=null;code=null;panel.hidden=true;$("arcadeFeedback").textContent="Create a private room or join a friend's six-digit code.";
   $("gameScreenTitle").textContent=names[game];$("gameScreenSubtitle").textContent="Two players · private room · live multiplayer";
-  $("arcadePlayerName").value=localStorage.getItem("ftw-player-name")||$("profileName")?.textContent||"Player";
+  $("arcadePlayerName").value=$("profileName")?.textContent||localStorage.getItem("ftw-player-name")||"Player";
   screen.hidden=false;document.body.classList.add("game-screen-open");window.scrollTo({top:0,behavior:"smooth"});
  }
  function status(message){$("arcadeRoomStatus").textContent=message;}
