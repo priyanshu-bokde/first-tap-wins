@@ -395,6 +395,16 @@ function finishGame(roomCode) {
 
 io.on("connection", socket => {
   console.log("Player connected:", socket.id);
+  socket.on("account-auth", (token, callback = () => {}) => {
+    const raw = String(token || "");
+    if (!/^[a-f0-9]{64}$/i.test(raw)) return callback({ success: false, message: "Invalid session." });
+    const userId = sessions.get(crypto.createHash("sha256").update(raw).digest("hex"));
+    const user = store.users.find(entry => entry.id === userId);
+    if (!user) return callback({ success: false, message: "Session expired. Please sign in again." });
+    socket.userId = user.id;
+    callback({ success: true, user: publicUser(user) });
+  });
+
 
   socket.on("create-room", (data, callback = () => {}) => {
     const name = cleanName(data?.name);
@@ -539,8 +549,8 @@ io.on("connection", socket => {
 const arcadeRooms = new Map();
 function arcadeCode(){let code;do{code=String(Math.floor(100000+Math.random()*900000));}while(arcadeRooms.has(code));return code;}
 function bingoCard(){const cols=[];for(let c=0;c<5;c++){const start=c*15+1;const nums=shuffle(Array.from({length:15},(_,i)=>start+i)).slice(0,5);cols.push(nums);}const card=Array.from({length:5},(_,r)=>Array.from({length:5},(_,c)=>cols[c][r]));card[2][2]="FREE";return card;}
-function arcadePublic(room){return {code:room.code,game:room.game,hostId:room.hostId,players:[...room.players.values()].map(p=>({id:p.id,name:p.name,card:p.card||null,marks:p.marks||[]})),started:room.started,turn:room.turn,board:room.board||Array(9).fill(""),drawn:room.drawn||[],lastNumber:room.lastNumber||null,status:room.status||"Waiting for players"};}
-function arcadeBroadcast(room){io.to(room.code).emit("arcade-state",arcadePublic(room));}
+function arcadePublic(room, viewerId){return {code:room.code,game:room.game,hostId:room.hostId,players:[...room.players.values()].map(p=>({id:p.id,name:p.name,card:p.id===viewerId?p.card||null:null,marks:p.id===viewerId?p.marks||[]:[]})),started:room.started,turn:room.turn,board:room.board||Array(9).fill(""),drawn:room.drawn||[],lastNumber:room.lastNumber||null,status:room.status||"Waiting for players"};}
+function arcadeBroadcast(room){for(const player of room.players.values())io.to(player.id).emit("arcade-state",arcadePublic(room,player.id));}
 io.on("connection",socket=>{
  socket.on("arcade-create",({name,game},cb=()=>{})=>{
   name=String(name||"").trim().slice(0,20);game=String(game||"").toLowerCase();
