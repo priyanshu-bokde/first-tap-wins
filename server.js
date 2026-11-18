@@ -576,6 +576,8 @@ function arcadePublic(room,viewerId){
  const state={};
  for(const key of ["phase","board","turn","winner","drawn","lastNumber","deck","matched","flipped","turnIndex","round","totalRounds","question","scores","pairScores","reactionStartedAt"]){
   if(key in room)state[key]=room[key];
+ if(state.deck)state.deck=state.deck.map((face,i)=>(room.matched||[]).includes(i)||(room.flipped||[]).includes(i)?face:null);
+ if(state.question)state.question={text:state.question.text};
  }
  if(room.word)state.word={scrambled:room.word.scrambled};
  return {code:room.code,game:room.game,hostId:room.hostId,players:[...room.players.values()].map(p=>({id:p.id,name:p.name,card:p.id===viewerId?p.card||null:null,marks:p.id===viewerId?p.marks||[]:[],score:p.score||0})),started:room.started,turn:room.turn,board:room.board||Array(9).fill(""),drawn:room.drawn||[],lastNumber:room.lastNumber||null,status:room.status||"Waiting for players",state};
