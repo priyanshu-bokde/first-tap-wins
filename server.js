@@ -603,7 +603,7 @@ io.on("connection",socket=>{
   if([...room.players.values()].some(p=>p.name.toLowerCase()===name.toLowerCase()))return cb({success:false,message:"That name is already in this room."});
   room.players.set(socket.id,{id:socket.id,name,score:0,card:room.game==="bingo"?bingoCard():null,marks:[]});socket.join("arcade:"+code);room.status="Both players are here. Host can start.";cb({success:true,code});arcadeBroadcast(room);
  });
- socket.on("arcade-start",cb=>{
+ socket.on("arcade-start",(_payload={},cb=()=>{})=>{
   const room=[...arcadeRooms.values()].find(r=>r.players.has(socket.id));
   if(!room||room.hostId!==socket.id)return cb?.({success:false,message:"Only the host can start."});
   if(room.players.size!==2)return cb?.({success:false,message:"Invite one friend first. Two players are required."});
@@ -621,7 +621,7 @@ io.on("connection",socket=>{
   else{room.turn=[...room.players.keys()].find(id=>id!==socket.id);room.status=room.players.get(room.turn).name+"'s turn";}
   arcadeBroadcast(room);cb({success:true});
  });
- socket.on("arcade-bingo-draw",cb=>{
+ socket.on("arcade-bingo-draw",(_payload={},cb=()=>{})=>{
   const room=[...arcadeRooms.values()].find(r=>r.players.has(socket.id));
   if(!room||room.game!=="bingo"||!room.started||room.hostId!==socket.id)return cb?.({success:false,message:"Only the host can draw a number during Bingo."});
   const remaining=Array.from({length:75},(_,i)=>i+1).filter(n=>!room.drawn.includes(n));
@@ -635,7 +635,7 @@ io.on("connection",socket=>{
   if(!room.drawn.includes(number)||!p.card.flat().includes(number))return cb({success:false,message:"That number has not been called or is not on your card."});
   if(!p.marks.includes(number))p.marks.push(number);arcadeBroadcast(room);cb({success:true});
  });
- socket.on("arcade-bingo-claim",cb=>{
+ socket.on("arcade-bingo-claim",(_payload={},cb=()=>{})=>{
   const room=[...arcadeRooms.values()].find(r=>r.players.has(socket.id));
   if(!room||room.game!=="bingo"||!room.started)return cb?.({success:false,message:"Bingo is not active."});
   const p=room.players.get(socket.id),marked=(r,c)=>p.card[r][c]==="FREE"||p.marks.includes(p.card[r][c]);
@@ -677,13 +677,13 @@ io.on("connection",socket=>{
   }
   cb({success:false,message:"That action is not supported for this game."});
  });
- socket.on("arcade-rematch",cb=>{
+ socket.on("arcade-rematch",(_payload={},cb=()=>{})=>{
   const room=[...arcadeRooms.values()].find(r=>r.players.has(socket.id));
   if(!room)return cb?.({success:false,message:"Room not found."});
   if(room.players.size!==2)return cb?.({success:false,message:"Wait for your friend to rejoin."});
   if(room.reactionTimer)clearTimeout(room.reactionTimer);initArcadeGame(room);arcadeBroadcast(room);cb?.({success:true});
  });
- socket.on("arcade-leave",cb=>{
+ socket.on("arcade-leave",(_payload={},cb=()=>{})=>{
   const room=[...arcadeRooms.values()].find(r=>r.players.has(socket.id));if(room)removeArcadePlayer(socket,room);cb?.({success:true});
  });
  socket.on("disconnect",()=>{for(const room of arcadeRooms.values())if(room.players.has(socket.id))removeArcadePlayer(socket,room);});
