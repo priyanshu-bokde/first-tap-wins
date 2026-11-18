@@ -131,3 +131,21 @@ footer{margin:20px 0 0 248px;padding:22px 30px;border-top:1px solid var(--border
 .back-dashboard-btn:hover{background:#1d4ed8;transform:translateY(-1px)}
 .back-dashboard-btn:disabled{opacity:.65;cursor:wait;transform:none}
 .back-dashboard-btn[hidden]{display:none!important}
+
+
+/* Navigation and keyboard accessibility polish */
+.sidebar-link:focus-visible,.mobile-nav a:focus-visible,
+.topbar-play:focus-visible,button:focus-visible,
+.modal-box input:focus-visible,.modal-box select:focus-visible{
+  outline:3px solid rgba(37,99,235,.35);
+  outline-offset:3px;
+}
+.sidebar-link.active,.mobile-nav a.active{
+  color:#1d4ed8;
+  background:#eff6ff;
+}
+.sidebar-link.active .nav-icon{color:#2563eb}
+.modal-overlay .modal-box{outline:none}
+@media(prefers-reduced-motion:no-preference){
+  html{scroll-behavior:smooth}
+}
