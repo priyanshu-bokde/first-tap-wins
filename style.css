@@ -820,3 +820,8 @@ html{scroll-behavior:smooth}
 @media(max-width:900px){.mini-games-grid-clean{grid-template-columns:repeat(2,minmax(0,1fr))}.arcade-room-controls-clean{grid-template-columns:1fr 1fr}.arcade-room-controls-clean label{min-width:0}.arcade-room-controls-clean button{width:100%}}
 @media(max-width:600px){.mini-games-grid-clean{grid-template-columns:1fr}.mini-games-grid-clean .mini-game-card{min-height:0}.mini-games-grid-clean .mini-game-card p{min-height:0}.game-screen{padding:14px}.game-screen-header{align-items:stretch}.game-screen-back{width:auto}.arcade-room-shell{padding:14px;border-radius:16px}.arcade-room-controls-clean{grid-template-columns:1fr}.arcade-room-controls-clean button{min-height:46px}.arcade-room-panel{padding:13px}.arcade-game-area{padding:12px}.arcade-game-area .memory-board{gap:6px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* Small-screen game controls and long-name safety */
+.arcade-room-top strong,.arcade-room-top b,.arcade-players{overflow-wrap:anywhere}
+.arcade-room-controls-clean input:focus-visible,.arcade-game-area input:focus-visible{outline:3px solid #bfdbfe;outline-offset:2px}
+.mini-game-card{min-width:0}
