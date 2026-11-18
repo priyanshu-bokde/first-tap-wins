@@ -9,6 +9,15 @@ const server = http.createServer(app);
 const io = new Server(server);
 const publicFolder = path.join(__dirname, "public");
 const websiteFolder = fs.existsSync(publicFolder) ? publicFolder : __dirname;
+app.disable("x-powered-by");
+app.use((req,res,next)=>{
+  res.setHeader("X-Content-Type-Options","nosniff");
+  res.setHeader("Referrer-Policy","strict-origin-when-cross-origin");
+  res.setHeader("X-Frame-Options","DENY");
+  res.setHeader("Permissions-Policy","camera=(), microphone=(), geolocation=()");
+  next();
+});
+app.get("/api/health",(req,res)=>res.json({ok:true,service:"first-tap-wins",time:new Date().toISOString()}));
 app.use(express.static(websiteFolder));
 
 const rooms = new Map();
@@ -571,7 +580,9 @@ io.on("connection",socket=>{
   if(!room||room.hostId!==socket.id)return cb({success:false,message:"Only the room host can start."});
   if(room.players.size!==2)return cb({success:false,message:"Two players are required."});
   if(room.started)return cb({success:false,message:"The game has already started."});
-  room.started=true;room.status=room.game==="bingo"?"Bingo is live! Host draws numbers.":"Player X's turn";arcadeBroadcast(room);cb({success:true});
+  if(room.game==="ttt"){room.board=Array(9).fill("");room.turn=room.hostId;}
+  else{room.drawn=[];room.lastNumber=null;for(const p of room.players.values()){p.card=bingoCard();p.marks=[];}}
+  room.started=true;room.status=room.game==="bingo"?"Bingo is live! Host draws numbers.":room.players.get(room.hostId).name+" starts";arcadeBroadcast(room);cb({success:true});
  });
  socket.on("arcade-ttt-move",({index},cb=()=>{})=>{
   const room=[...arcadeRooms.values()].find(r=>r.players.has(socket.id));
