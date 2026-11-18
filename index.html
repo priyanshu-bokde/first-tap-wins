@@ -551,13 +551,13 @@ const socket=io(); window.socket=socket;
   }
  }
  document.querySelectorAll(".mini-open-game").forEach(b=>b.addEventListener("click",()=>openGame(b.dataset.miniGame)));
- $("arcadeCreate").addEventListener("click",async()=>{const name=$("arcadePlayerName").value.trim();localStorage.setItem("ftw-player-name",name);const r=await emit("arcade-create",{name,game:selected});if(!r.success)return $("arcadeFeedback").textContent=r.message;code=r.code;host=true;$("arcadeFeedback").textContent="Room created. Share the code with your friend.";});
- $("arcadeJoin").addEventListener("click",async()=>{const name=$("arcadePlayerName").value.trim();localStorage.setItem("ftw-player-name",name);const r=await emit("arcade-join",{name,code:$("arcadeJoinCode").value.trim()});if(!r.success)return $("arcadeFeedback").textContent=r.message;code=r.code;host=false;$("arcadeFeedback").textContent="Joined room successfully.";});
+ $("arcadeCreate").addEventListener("click",async()=>{const name=$("arcadePlayerName").value.trim();localStorage.setItem("ftw-player-name",name);const r=await emit("arcade-create",{name,game:selected});if(!r.success)return $("arcadeFeedback").textContent=r.message;code=r.code;window.currentArcadeRoomCode=code;host=true;$("arcadeFeedback").textContent="Room created. Share the code with your friend.";});
+ $("arcadeJoin").addEventListener("click",async()=>{const name=$("arcadePlayerName").value.trim();localStorage.setItem("ftw-player-name",name);const r=await emit("arcade-join",{name,code:$("arcadeJoinCode").value.trim()});if(!r.success)return $("arcadeFeedback").textContent=r.message;code=r.code;window.currentArcadeRoomCode=code;host=false;$("arcadeFeedback").textContent="Joined room successfully.";});
  $("arcadeStart").addEventListener("click",async()=>{const r=await emit("arcade-start");if(!r.success)status(r.message);});
  $("arcadeRematch").addEventListener("click",async()=>{const r=await emit("arcade-rematch");if(!r.success)status(r.message);});
- $("arcadeLeave").addEventListener("click",async()=>{await emit("arcade-leave");code=null;state=null;panel.hidden=true;area.innerHTML="";});
+ $("arcadeLeave").addEventListener("click",async()=>{await emit("arcade-leave");code=null;window.currentArcadeRoomCode=null;state=null;panel.hidden=true;area.innerHTML="";});
  $("arcadeCopyCode").addEventListener("click",()=>{if(code)navigator.clipboard?.writeText(code).then(()=>$("arcadeCopyCode").textContent="COPIED").catch(()=>status("Room code: "+code));});
- $("gameScreenBack").addEventListener("click",async()=>{if(code)await emit("arcade-leave");code=null;state=null;screen.hidden=true;document.body.classList.remove("game-screen-open");});
+ $("gameScreenBack").addEventListener("click",async()=>{if(code)await emit("arcade-leave");code=null;window.currentArcadeRoomCode=null;state=null;screen.hidden=true;document.body.classList.remove("game-screen-open");});
  socket.on("arcade-state",data=>{if(code&&data.code===code){if(wasStarted&&!data.started&&data.state?.winner!==undefined&&typeof window.recordArcadeMatch==="function")window.recordArcadeMatch(data.game,data.players,data.state.winner);wasStarted=data.started;state=data;host=data.hostId===socket.id;render();}});
  socket.on("disconnect",()=>{if(code)status("Connection lost. Reconnect and rejoin the room.");});
 })();
