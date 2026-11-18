@@ -241,13 +241,37 @@
             <div class="form-row">
                 <div>
                     <label>Maximum Players</label>
-                    <select id="maxPlayers">
+                    <select id="maxPlayers" required>
+                        <option value="1">1 Player</option>
                         <option value="2">2 Players</option>
+                        <option value="3">3 Players</option>
                         <option value="4">4 Players</option>
+                        <option value="5">5 Players</option>
                         <option value="6">6 Players</option>
+                        <option value="7">7 Players</option>
                         <option value="8" selected>8 Players</option>
+                        <option value="9">9 Players</option>
                         <option value="10">10 Players</option>
+                        <option value="11">11 Players</option>
+                        <option value="12">12 Players</option>
+                        <option value="13">13 Players</option>
+                        <option value="14">14 Players</option>
                         <option value="15">15 Players</option>
+                        <option value="16">16 Players</option>
+                        <option value="17">17 Players</option>
+                        <option value="18">18 Players</option>
+                        <option value="19">19 Players</option>
+                        <option value="20">20 Players</option>
+                        <option value="21">21 Players</option>
+                        <option value="22">22 Players</option>
+                        <option value="23">23 Players</option>
+                        <option value="24">24 Players</option>
+                        <option value="25">25 Players</option>
+                        <option value="26">26 Players</option>
+                        <option value="27">27 Players</option>
+                        <option value="28">28 Players</option>
+                        <option value="29">29 Players</option>
+                        <option value="30">30 Players</option>
                     </select>
                 </div>
 
@@ -266,10 +290,23 @@
             <select id="category">
                 <option value="mixed">Mixed Questions</option>
                 <option value="gk">General Knowledge</option>
+                <option value="india">India</option>
+                <option value="geography">Geography</option>
+                <option value="history">History</option>
+                <option value="technology">Technology</option>
+                <option value="sports">Sports</option>
                 <option value="maths">Mathematics</option>
                 <option value="science">Science</option>
                 <option value="alphabet">Alphabet Challenge</option>
                 <option value="riddles">Riddles</option>
+            </select>
+
+            <label>Question Difficulty</label>
+            <select id="difficulty">
+                <option value="mixed">Mixed Difficulty</option>
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
             </select>
 
             <label class="check-label">
@@ -606,7 +643,8 @@ document.getElementById("createForm").addEventListener("submit", function(event)
         name: document.getElementById("hostName").value.trim(),
         maxPlayers: Number(document.getElementById("maxPlayers").value),
         rounds: Number(document.getElementById("rounds").value),
-        category: document.getElementById("category").value
+        category: document.getElementById("category").value,
+        difficulty: document.getElementById("difficulty").value
     };
 
     socket.emit("create-room", data, function(result) {
@@ -673,10 +711,10 @@ socket.on("players-update", function(data) {
     document.getElementById("playerCount").textContent =
         `${players.length} / ${data.maxPlayers || "—"}`;
     document.getElementById("lobbyStatus").textContent =
-        players.length >= 2 ? "Players are connected. Get ready!" :
-        "Waiting for at least one friend...";
+        players.length >= 1 ? "Room is ready. The host can start the quiz!" :
+        "Waiting for a player...";
     document.getElementById("startGameBtn").disabled =
-        !amHost || players.length < 2;
+        !amHost || players.length < 1;
 });
 
 document.getElementById("copyRoomCode").addEventListener("click", async function() {
