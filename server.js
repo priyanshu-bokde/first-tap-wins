@@ -13,6 +13,102 @@ app.use(express.static(websiteFolder));
 
 const rooms = new Map();
 
+/* Phase 7: lightweight persistent account and match store.
+   Set DATA_DIR to a persistent mounted directory on hosting platforms. */
+const crypto = require("crypto");
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
+const STORE_FILE = path.join(DATA_DIR, "store.json");
+const sessions = new Map();
+const authAttempts = new Map();
+let store = { users: [], matches: [] };
+try {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+  if (fs.existsSync(STORE_FILE)) store = Object.assign(store, JSON.parse(fs.readFileSync(STORE_FILE, "utf8")));
+} catch (error) { console.error("Account store could not be loaded:", error.message); }
+let saveQueue = Promise.resolve();
+function saveStore() {
+  saveQueue = saveQueue.then(async () => {
+    await fs.promises.mkdir(DATA_DIR, { recursive: true });
+    const temp = STORE_FILE + ".tmp";
+    await fs.promises.writeFile(temp, JSON.stringify(store, null, 2), { mode: 0o600 });
+    await fs.promises.rename(temp, STORE_FILE);
+  }).catch(error => console.error("Account store save failed:", error.message));
+  return saveQueue;
+}
+function cleanName(value) { return String(value || "").trim().replace(/[<>]/g, "").slice(0, 20); }
+function hashPassword(password, salt) {
+  return new Promise((resolve, reject) => crypto.scrypt(password, salt, 64, (err, key) => err ? reject(err) : resolve(key.toString("hex"))));
+}
+function authUser(req) {
+  const token = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "");
+  const userId = sessions.get(crypto.createHash("sha256").update(token).digest("hex"));
+  return store.users.find(user => user.id === userId) || null;
+}
+function publicUser(user) {
+  return { id:user.id, name:user.name, avatar:user.avatar, xp:user.xp, matches:user.matches, wins:user.wins, badges:user.badges, history:user.history };
+}
+function accountRateLimit(req,res,next) {
+  const key=req.ip, now=Date.now(), recent=(authAttempts.get(key)||[]).filter(t=>now-t<60000);
+  if(recent.length>=12)return res.status(429).json({error:"Too many attempts. Please wait a minute."});
+  recent.push(now);authAttempts.set(key,recent);next();
+}
+app.use(express.json({limit:"12kb"}));
+app.post("/api/register",accountRateLimit,async(req,res)=>{
+  try{
+    const name=cleanName(req.body.name),password=String(req.body.password||"");
+    if(name.length<3||password.length<8||password.length>128)return res.status(400).json({error:"Choose a name of 3–20 characters and a password of at least 8 characters."});
+    if(store.users.some(u=>u.name.toLowerCase()===name.toLowerCase()))return res.status(409).json({error:"That player name is already taken."});
+    const salt=crypto.randomBytes(16).toString("hex"),passwordHash=await hashPassword(password,salt);
+    const user={id:crypto.randomUUID(),name,avatar:"🎮",salt,passwordHash,xp:0,matches:0,wins:0,badges:[],history:[],createdAt:new Date().toISOString()};
+    store.users.push(user);const token=crypto.randomBytes(32).toString("hex");
+    sessions.set(crypto.createHash("sha256").update(token).digest("hex"),user.id);
+    await saveStore();res.status(201).json({token,user:publicUser(user)});
+  }catch(error){res.status(500).json({error:"Could not create the account."});}
+});
+app.post("/api/login",accountRateLimit,async(req,res)=>{
+  try{
+    const name=cleanName(req.body.name),password=String(req.body.password||"");
+    const user=store.users.find(u=>u.name.toLowerCase()===name.toLowerCase());
+    if(!user||!await hashPassword(password,user.salt).then(hash=>crypto.timingSafeEqual(Buffer.from(hash,"hex"),Buffer.from(user.passwordHash,"hex"))).catch(()=>false))return res.status(401).json({error:"Player name or password is incorrect."});
+    const token=crypto.randomBytes(32).toString("hex");
+    sessions.set(crypto.createHash("sha256").update(token).digest("hex"),user.id);
+    res.json({token,user:publicUser(user)});
+  }catch(error){res.status(500).json({error:"Could not sign in."});}
+});
+app.get("/api/me",(req,res)=>{const user=authUser(req);if(!user)return res.status(401).json({error:"Please sign in."});res.json({user:publicUser(user)});});
+app.patch("/api/profile",async(req,res)=>{
+  const user=authUser(req);if(!user)return res.status(401).json({error:"Please sign in."});
+  const name=cleanName(req.body.name),avatar=String(req.body.avatar||"🎮").slice(0,8);
+  if(name.length<3)return res.status(400).json({error:"Player name must be at least 3 characters."});
+  if(store.users.some(u=>u.id!==user.id&&u.name.toLowerCase()===name.toLowerCase()))return res.status(409).json({error:"That player name is already taken."});
+  user.name=name;user.avatar=avatar;await saveStore();res.json({user:publicUser(user)});
+});
+app.get("/api/leaderboard",(req,res)=>{
+  const leaders=[...store.users].sort((a,b)=>b.xp-a.xp||b.wins-a.wins).slice(0,50).map((u,i)=>({rank:i+1,name:u.name,avatar:u.avatar,xp:u.xp,level:Math.floor(u.xp/250)+1,wins:u.wins,matches:u.matches}));
+  res.json({leaderboard:leaders});
+});
+async function recordPersistentMatch(room) {
+  const ranked=publicScores(room);
+  const matchId=crypto.randomUUID();
+  for(let index=0;index<ranked.length;index++){
+    const player=room.players.get(ranked[index].id);
+    if(!player||!player.userId)continue;
+    const user=store.users.find(u=>u.id===player.userId);if(!user)continue;
+    const won=index===0,earned=50+(won?25:0);
+    user.xp+=earned;user.matches++;if(won)user.wins++;
+    if(!user.badges.includes("First Match"))user.badges.push("First Match");
+    if(user.wins&&!user.badges.includes("First Win"))user.badges.push("First Win");
+    if(user.matches>=5&&!user.badges.includes("5 Matches"))user.badges.push("5 Matches");
+    if(user.xp>=500&&!user.badges.includes("500 XP"))user.badges.push("500 XP");
+    user.history.unshift({matchId,date:new Date().toISOString(),result:won?"1st place":"Played",score:ranked[index].score});
+    user.history=user.history.slice(0,20);
+  }
+  store.matches.unshift({id:matchId,roomCode:room.code,category:room.category,difficulty:room.difficulty,rounds:room.rounds,finishedAt:new Date().toISOString(),leaderboard:ranked.map(p=>({name:p.name,score:p.score}))});
+  store.matches=store.matches.slice(0,500);
+  await saveStore();
+}
+
+
 // Original question bank. Every question has four options and one correct answer.
 const QUESTION_BANK = {
   gk: [
@@ -294,13 +390,14 @@ function finishGame(roomCode) {
   room.inGame = false;
   room.phase = "finished";
   io.to(roomCode).emit("game-over", { leaderboard: publicScores(room), totalRounds: room.rounds });
+  recordPersistentMatch(room).catch(error => console.error("Match history save failed:", error.message));
 }
 
 io.on("connection", socket => {
   console.log("Player connected:", socket.id);
 
   socket.on("create-room", (data, callback = () => {}) => {
-    const name = String(data?.name || "").trim().slice(0, 20);
+    const name = cleanName(data?.name);
     const roomName = String(data?.roomName || "Quiz Battle").trim().slice(0, 32);
     const maxPlayers = Number(data?.maxPlayers);
     const rounds = Number(data?.rounds);
@@ -313,7 +410,7 @@ io.on("connection", socket => {
       rounds: Number.isInteger(rounds) ? Math.min(20, Math.max(1, rounds)) : 10,
       category: (category === "mixed" || QUESTION_BANK[category]) ? category : "mixed",
       difficulty: ["mixed", "easy", "medium", "hard"].includes(data?.difficulty) ? data.difficulty : "mixed",
-      players: new Map([[socket.id, { id: socket.id, name, isHost: true, score: 0 }]]),
+      players: new Map([[socket.id, { id: socket.id, name, isHost: true, score: 0, userId: socket.userId || null }]]),
       gameStarting: false, countdownTimer: null, questionTimer: null, answerTimer: null, nextTimer: null,
       inGame: false, phase: "lobby", roundIndex: 0, questions: [], currentQuestion: null, buzzedBy: null
     });
@@ -325,14 +422,14 @@ io.on("connection", socket => {
 
   socket.on("join-room", (data, callback = () => {}) => {
     const code = String(data?.code || "").trim();
-    const name = String(data?.name || "").trim().slice(0, 20);
+    const name = cleanName(data?.name);
     const room = rooms.get(code);
     if (!room || !name) return callback({ success: false, message: "Room not found or invalid name." });
     if (room.inGame || room.gameStarting) return callback({ success: false, message: "This game has already started." });
     if (room.players.size >= room.maxPlayers) return callback({ success: false, message: "Room is full." });
     if ([...room.players.values()].some(p => p.name.toLowerCase() === name.toLowerCase()))
       return callback({ success: false, message: "Username already taken." });
-    room.players.set(socket.id, { id: socket.id, name, isHost: false, score: 0 });
+    room.players.set(socket.id, { id: socket.id, name, isHost: false, score: 0, userId: socket.userId || null });
     socket.join(code);
     callback({ success: true, code, settings: { roomName: room.roomName, rounds: room.rounds, category: room.category, difficulty: room.difficulty } });
     sendPlayers(code);
