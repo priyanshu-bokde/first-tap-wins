@@ -4,56 +4,33 @@ A real-time multiplayer quiz and mini-game website built with Node.js, Express a
 
 ## Run locally
 
-1. Install Node.js (18 or newer recommended).
-2. Clone this repository and open its folder in a terminal.
-3. Install dependencies:
+1. Install Node.js 18 or newer.
+2. Open this project folder in Command Prompt.
+3. Install dependencies: `npm install`
+4. Check JavaScript syntax: `npm run check`
+5. Start the server: `npm start`
+6. Open `http://localhost:3000`.
 
-```bash
-npm install
-```
+For multiplayer testing, open a second browser window or use another device on the same network and join the same six-digit room code.
 
-4. Check server JavaScript syntax:
+## Game modes
 
-```bash
-npm run check
-```
+- Quiz Arena: 1–30 players, configurable rounds, categories and difficulty.
+- Bingo Battle: two-player private rooms, individual cards, host number draws and line claims.
+- Reaction Rush: synchronized signal and fastest tap wins.
+- Memory Match: turn-based shared board, pairs and score tracking.
+- Quick Math: ten rounds; the first correct answer earns the point.
+- Word Scramble: eight rounds; the first correct word earns the point.
+- Tic-Tac-Toe: server-validated turns and in-room rematches.
 
-5. Start the server:
+All mini-games use private six-digit rooms. A player can create a room, share the code, and invite one opponent. The player profile, XP and achievements are stored locally in that browser; no account or sign-in is required.
 
-```bash
-npm start
-```
+## Hosting notes
 
-6. Open `http://localhost:3000`. For multiplayer testing, open a second browser or device and join the same room code.
+Deploy as a Node web service with `npm start` as the start command. The server listens on the hosting provider's `PORT` environment variable.
 
-## Hosting
+The current room state is held in server memory and active games are lost if the service restarts. For reliable public hosting, use a persistent database and shared session/room infrastructure before scaling to multiple server instances. Use HTTPS in production.
 
-Deploy this repository as a Node web service. Use `npm start` as the start command. The server listens on the hosting provider's `PORT` environment variable.
+## Checks
 
-### Persistent account data
-
-Account records are stored in `DATA_DIR/store.json`. On a host that supports persistent disks:
-
-- Attach a persistent disk to the service.
-- Mount it at a path such as `/var/data`.
-- Set `DATA_DIR=/var/data` in the service environment.
-- Redeploy and verify that a test account remains after a service restart.
-
-Without persistent storage, account data may be erased during a restart or redeployment. Back up the data file before changing storage configuration.
-
-## Architecture notes
-
-- Quiz and arcade room state is held in server memory. Active rooms are not restored after a server restart.
-- Login sessions are held in server memory. Users may need to sign in again after a restart; account records remain in the data file.
-- The global leaderboard ranks registered accounts by earned XP.
-- The current account store is a lightweight JSON-file implementation, not a managed database. For larger public usage, migrate to a database with backups and monitoring.
-- Use HTTPS in production. Do not reuse an important personal password for testing.
-- Keep secrets and persistent data out of Git; do not commit `data/store.json`.
-
-## Main features
-
-- Quiz rooms for 1–30 players.
-- Question categories, difficulty settings and randomized rounds.
-- Mini-game arcade including multiplayer Tic-Tac-Toe and Bingo.
-- Player profiles, XP, levels, achievements and match history.
-- Optional online accounts and global XP leaderboard.
+`npm run check` validates server JavaScript and inline browser JavaScript syntax. This is a syntax check, not a substitute for two-browser gameplay testing.
