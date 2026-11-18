@@ -41,15 +41,8 @@
  </div>
  <div class="profile-achievements"><strong>Achievements</strong><div id="profileBadges"><span class="achievement-locked">Complete your first quiz to unlock a badge</span></div></div>
  <div class="profile-history"><strong>Recent quiz matches</strong><ol id="profileHistory"><li>No matches recorded yet.</li></ol></div>
- <p class="profile-storage-note">Local progress is available on this device. Sign in to sync your quiz stats online.</p>
-<div class="account-access" id="accountAccess">
- <strong>Online account</strong><p>Create an account or sign in to sync your quiz progress and appear on the global leaderboard.</p>
- <label for="accountName">Player name</label><input id="accountName" maxlength="20" autocomplete="username" placeholder="Choose a player name">
- <label for="accountPassword">Password</label><input id="accountPassword" type="password" minlength="8" autocomplete="current-password" placeholder="At least 8 characters">
- <div class="account-actions"><button type="button" id="accountRegister">CREATE ACCOUNT</button><button type="button" id="accountLogin">SIGN IN</button><button type="button" id="accountLogout" hidden>SIGN OUT</button></div>
- <p id="accountMessage" role="status" aria-live="polite">Local profile works without an account.</p>
-</div>
-<div class="global-leaderboard"><strong>Global leaderboard</strong><ol id="globalLeaderboard"><li>Sign in and complete a quiz to start ranking.</li></ol></div>
+ <p class="profile-storage-note">Your player card, achievements and progress are saved on this device. No account or sign-in required.</p>
+
 </section>
     <main class="hero">
 
@@ -194,13 +187,13 @@
 <section class="mini-games-section" id="mini-games" aria-labelledby="miniGamesTitle">
 <div class="mini-games-heading"><div><span class="section-kicker">MORE WAYS TO PLAY</span><h2 id="miniGamesTitle">Mini games arcade</h2><p>Quick challenges for a short break or a friendly competition.</p></div><span class="mini-games-count">3 GAME MODES</span></div>
 <div class="mini-games-grid">
-<article class="mini-game-card playable-card"><div class="mini-game-card-top"><span class="mini-game-icon">🎱</span><span class="mini-game-tag available">MULTIPLAYER</span></div><h3>Bingo Battle</h3><p>Join a friend, mark called numbers and be the first to complete a line.</p><div class="mini-game-preview math-preview"><strong>B · I · N · G · O</strong></div><a class="mini-game-button" href="#multiplayer-arcade" style="display:block;text-align:center;text-decoration:none">PLAY BINGO WITH FRIENDS</a></article>
+<article class="mini-game-card playable-card"><div class="mini-game-card-top"><span class="mini-game-icon">🎱</span><span class="mini-game-tag available">MULTIPLAYER</span></div><h3>Bingo Battle</h3><p>Join a friend, mark called numbers and be the first to complete a line.</p><div class="mini-game-preview math-preview"><strong>B · I · N · G · O</strong></div><button type="button" class="mini-game-button open-multiplayer-game" data-multiplayer-game="bingo">PLAY BINGO WITH FRIENDS</button></article>
 
-<article class="mini-game-card reaction-card"><div class="mini-game-card-top"><span class="mini-game-icon">⚡</span><span class="mini-game-tag available">PLAY NOW</span></div><h3>Reaction Rush</h3><p>Wait for the signal, then tap as quickly as you can. Test your reaction time.</p><div class="reaction-stage" id="reactionStage" aria-live="polite">Ready when you are</div><div class="reaction-result" id="reactionResult">Your best time will appear here.</div><button type="button" class="mini-game-button" id="reactionButton">START CHALLENGE</button></article>
-<article class="mini-game-card playable-card"><div class="mini-game-card-top"><span class="mini-game-icon">🧠</span><span class="mini-game-tag available">PLAY NOW</span></div><h3>Memory Match</h3><p>Find all matching pairs using as few moves as possible.</p><div class="memory-board" id="memoryBoard" aria-label="Memory card board"></div><div class="mini-game-result" id="memoryResult" aria-live="polite">Find the matching pairs.</div><button type="button" class="mini-game-button" id="memoryButton">START MEMORY GAME</button></article>
-<article class="mini-game-card playable-card"><div class="mini-game-card-top"><span class="mini-game-icon">➗</span><span class="mini-game-tag available">PLAY NOW</span></div><h3>Quick Math</h3><p>Answer as many quick calculations as you can in 30 seconds.</p><div class="math-question" id="mathQuestion">Press start to begin.</div><div class="math-controls"><input id="mathAnswer" type="number" inputmode="numeric" placeholder="Your answer" aria-label="Math answer" disabled><button type="button" id="mathSubmit" disabled>OK</button></div><div class="mini-game-result" id="mathResult" aria-live="polite">Score: 0 · Time: 30s</div><button type="button" class="mini-game-button" id="mathStart">START QUICK MATH</button></article>
-<article class="mini-game-card playable-card"><div class="mini-game-card-top"><span class="mini-game-icon">🔤</span><span class="mini-game-tag available">PLAY NOW</span></div><h3>Word Scramble</h3><p>Unscramble the letters and find the hidden word.</p><div class="word-scramble" id="wordScramble">READY?</div><input class="word-answer" id="wordAnswer" type="text" placeholder="Type the word" aria-label="Word answer" disabled><div class="mini-game-result" id="wordResult" aria-live="polite">Start a round to play.</div><button type="button" class="mini-game-button" id="wordStart">START WORD CHALLENGE</button></article>
-<article class="mini-game-card playable-card"><div class="mini-game-card-top"><span class="mini-game-icon">⭕</span><span class="mini-game-tag available">2 PLAYERS</span></div><h3>Tic-Tac-Toe</h3><p>Take turns on this device. Get three marks in a row to win.</p><div class="ttt-board" id="tttBoard" aria-label="Tic tac toe board"></div><div class="mini-game-result" id="tttResult" aria-live="polite">Player X starts.</div><button type="button" class="mini-game-button" id="tttReset">NEW ROUND</button></article>
+<article class="mini-game-card reaction-card" data-game-title="Reaction Rush"><div class="mini-game-card-top"><span class="mini-game-icon">⚡</span><span class="mini-game-tag available">PLAY NOW</span></div><h3>Reaction Rush</h3><p>Wait for the signal, then tap as quickly as you can. Test your reaction time.</p><div class="reaction-stage" id="reactionStage" aria-live="polite">Ready when you are</div><div class="reaction-result" id="reactionResult">Your best time will appear here.</div><button type="button" class="mini-game-button" id="reactionButton">START CHALLENGE</button><button type="button" class="open-game-screen" data-open-card>OPEN REACTION RUSH</button></article>
+<article class="mini-game-card playable-card" data-game-title="Memory Match"><div class="mini-game-card-top"><span class="mini-game-icon">🧠</span><span class="mini-game-tag available">PLAY NOW</span></div><h3>Memory Match</h3><p>Find all matching pairs using as few moves as possible.</p><div class="memory-board" id="memoryBoard" aria-label="Memory card board"></div><div class="mini-game-result" id="memoryResult" aria-live="polite">Find the matching pairs.</div><button type="button" class="mini-game-button" id="memoryButton">START MEMORY GAME</button><button type="button" class="open-game-screen" data-open-card>OPEN MEMORY MATCH</button></article>
+<article class="mini-game-card playable-card" data-game-title="Quick Math"><div class="mini-game-card-top"><span class="mini-game-icon">➗</span><span class="mini-game-tag available">PLAY NOW</span></div><h3>Quick Math</h3><p>Answer as many quick calculations as you can in 30 seconds.</p><div class="math-question" id="mathQuestion">Press start to begin.</div><div class="math-controls"><input id="mathAnswer" type="number" inputmode="numeric" placeholder="Your answer" aria-label="Math answer" disabled><button type="button" id="mathSubmit" disabled>OK</button></div><div class="mini-game-result" id="mathResult" aria-live="polite">Score: 0 · Time: 30s</div><button type="button" class="mini-game-button" id="mathStart">START QUICK MATH</button><button type="button" class="open-game-screen" data-open-card>OPEN QUICK MATH</button></article>
+<article class="mini-game-card playable-card" data-game-title="Word Scramble"><div class="mini-game-card-top"><span class="mini-game-icon">🔤</span><span class="mini-game-tag available">PLAY NOW</span></div><h3>Word Scramble</h3><p>Unscramble the letters and find the hidden word.</p><div class="word-scramble" id="wordScramble">READY?</div><input class="word-answer" id="wordAnswer" type="text" placeholder="Type the word" aria-label="Word answer" disabled><div class="mini-game-result" id="wordResult" aria-live="polite">Start a round to play.</div><button type="button" class="mini-game-button" id="wordStart">START WORD CHALLENGE</button><button type="button" class="open-game-screen" data-open-card>OPEN WORD SCRAMBLE</button></article>
+<article class="mini-game-card playable-card" data-game-title="Tic-Tac-Toe"><div class="mini-game-card-top"><span class="mini-game-icon">⭕</span><span class="mini-game-tag available">2 PLAYERS</span></div><h3>Tic-Tac-Toe</h3><p>Take turns on this device. Get three marks in a row to win.</p><div class="ttt-board" id="tttBoard" aria-label="Tic tac toe board"></div><div class="mini-game-result" id="tttResult" aria-live="polite">Player X starts.</div><button type="button" class="mini-game-button" id="tttReset">NEW ROUND</button><button type="button" class="open-game-screen" data-open-card>OPEN LOCAL GAME</button><button type="button" class="open-multiplayer-game" data-multiplayer-game="ttt">PLAY ONLINE WITH FRIEND</button></article>
 </div></section>
 
 <div class="arcade-multiplayer" id="multiplayer-arcade">
@@ -240,6 +233,16 @@
         <a class="active" href="#home"><span>⌂</span>Home</a><a href="#play"><span>＋</span>Play</a><a href="#how"><span>ⓘ</span>How to</a><a href="#game-hub"><span>▦</span>Hub</a><a href="#mini-games"><span>🎮</span>Games</a>
     </nav>
 
+<div class="modal-overlay profile-edit-modal" id="profileEditModal" hidden>
+ <div class="modal-box profile-edit-box" role="dialog" aria-modal="true" aria-labelledby="profileEditTitle">
+  <button class="close-btn" type="button" id="profileEditCancel" aria-label="Close">×</button><div class="modal-icon">🎮</div><h2 id="profileEditTitle">EDIT YOUR PLAYER CARD</h2>
+  <form id="profileEditForm"><label for="profileEditName">Player name</label><input id="profileEditName" maxlength="20" required><label for="profileEditAvatar">Choose avatar</label><select id="profileEditAvatar"><option>🎮</option><option>⚡</option><option>🚀</option><option>🦊</option><option>🐼</option><option>🌟</option><option>🏆</option><option>🐯</option></select><button class="create-btn" type="submit">SAVE PROFILE</button></form>
+ </div>
+</div>
+<section class="game-screen" id="gameScreen" hidden aria-live="polite">
+ <header class="game-screen-header"><button type="button" class="game-screen-back" id="gameScreenBack">← BACK TO ARCADE</button><div><span class="section-kicker">FIRST TAP WINS ARCADE</span><h2 id="gameScreenTitle">Game</h2><p id="gameScreenSubtitle">Ready when you are.</p></div></header>
+ <div class="game-screen-content" id="gameScreenContent"></div>
+</section>
 <!-- CREATE ROOM MODAL -->
 <div class="modal-overlay" id="createModal">
     <div class="modal-box">
@@ -489,7 +492,9 @@
     </footer>
 
     
-<script src="/socket.io/socket.io.js">
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket=io(); window.socket=socket;
 /* Phase 3 arcade games: Memory Match, Quick Math, Word Scramble and Tic-Tac-Toe. */
 (function(){
  const $=id=>document.getElementById(id);
@@ -547,9 +552,6 @@
 </script>
 
 <script>
-const socket = io();
-window.socket = socket;
-
 let currentRoomCode = null;
 let amHost = false;
 let currentRoomSettings = {};
@@ -1050,68 +1052,25 @@ socket.on("connect_error", function() {
   if(profile.xp>=500)unlock("xp-500","500 XP");
   save();
  };
- $("profileEdit")?.addEventListener("click",()=>{
-  const name=prompt("Choose your player name (up to 20 characters):",profile.name);
-  if(name===null)return;
-  const clean=name.trim().slice(0,20);if(clean)profile.name=clean;
-  const avatars=["🎮","⚡","🚀","🦊","🐼","🌟","🏆","🐯"];
-  const next=avatars[(avatars.indexOf(profile.avatar)+1+avatars.length)%avatars.length];
-  if(confirm("Change your profile avatar to "+next+"?"))profile.avatar=next;
-  save();
- });
+ const editModal=$("profileEditModal"),nameInput=$("profileEditName"),avatarSelect=$("profileEditAvatar");
+ $("profileEdit")?.addEventListener("click",()=>{nameInput.value=profile.name;avatarSelect.value=profile.avatar;editModal.hidden=false;nameInput.focus();});
+ $("profileEditCancel")?.addEventListener("click",()=>{editModal.hidden=true;});
+ $("profileEditForm")?.addEventListener("submit",event=>{event.preventDefault();const clean=nameInput.value.trim().slice(0,20);if(clean)profile.name=clean;profile.avatar=avatarSelect.value;save();editModal.hidden=true;});
  render();
 })();
 </script>
 
+
 <script>
-/* Phase 7 account connection and online leaderboard. */
 (function(){
- const $=id=>document.getElementById(id),TOKEN_KEY="ftw-account-token-v1";
- let token=localStorage.getItem(TOKEN_KEY)||"";
- async function request(path,method="GET",body){
-  const response=await fetch(path,{method,headers:{"Content-Type":"application/json",...(token?{Authorization:"Bearer "+token}:{})},...(body?{body:JSON.stringify(body)}:{})});
-  const data=await response.json().catch(()=>({error:"Server response was not readable."}));
-  if(!response.ok)throw new Error(data.error||"Request failed.");return data;
- }
- function message(text){$("accountMessage").textContent=text;}
- function setAccount(data){
-  token=data.token||token;if(data.token)localStorage.setItem(TOKEN_KEY,token);
-  if(data.user){
-   const p=data.user;
-   $("profileName").textContent=p.name;$("profileAvatar").textContent=p.avatar||"🎮";
-   $("profileXp").textContent=p.xp;$("profileMatches").textContent=p.matches;$("profileWins").textContent=p.wins;
-   $("profileLevel").textContent=Math.floor(p.xp/250)+1;
-   const progress=p.xp%250;$("profileXpBar").style.width=(progress/250*100)+"%";$("profileXpBar").parentElement.setAttribute("aria-valuenow",String(progress));
-   $("profileNextLevel").textContent=(250-progress)+" XP to Level "+(Math.floor(p.xp/250)+2);
-   const badges=$("profileBadges");badges.innerHTML="";(p.badges||[]).forEach(label=>{const el=document.createElement("span");el.className="achievement-badge";el.textContent="🏅 "+label;badges.appendChild(el);});
-   const history=$("profileHistory");history.innerHTML="";(p.history||[]).slice(0,5).forEach(item=>{const li=document.createElement("li");li.textContent=new Date(item.date).toLocaleDateString()+" · "+item.result+" · "+item.score+" pts";history.appendChild(li);});
-   $("accountName").value=p.name;$("accountLogout").hidden=false;
-   window.currentPlayerName=p.name;socket.emit("account-auth",token,()=>{});
-  }
- }
- async function refreshLeaderboard(){
-  try{const data=await request("/api/leaderboard");const list=$("globalLeaderboard");list.innerHTML="";
-   if(!data.leaderboard.length){const li=document.createElement("li");li.textContent="No ranked players yet.";list.appendChild(li);return;}
-   data.leaderboard.forEach(p=>{const li=document.createElement("li");li.textContent="#"+p.rank+" "+p.name+" · Level "+p.level+" · "+p.xp+" XP";list.appendChild(li);});
-  }catch(error){$("globalLeaderboard").textContent="Leaderboard will be available when the server is online.";}
- }
- async function authenticate(path){
-  try{const data=await request(path,"POST",{name:$("accountName").value,password:$("accountPassword").value});setAccount(data);$("accountPassword").value="";message("Signed in. Your profile is now connected to your online account.");await refreshLeaderboard();}
-  catch(error){message(error.message);}
- }
- socket.on("connect",()=>{if(token)socket.emit("account-auth",token,()=>{});});
- $("accountRegister").addEventListener("click",()=>authenticate("/api/register"));
- $("accountLogin").addEventListener("click",()=>authenticate("/api/login"));
- $("accountLogout").addEventListener("click",()=>{token="";localStorage.removeItem(TOKEN_KEY);$("accountLogout").hidden=true;message("Signed out. Your online profile remains saved.");});
- /* Keep server profile details aligned after the existing local profile editor runs. */
- if($("profileEdit"))$("profileEdit").addEventListener("click",async()=>{
-  if(!token)return;
-  setTimeout(async()=>{try{const data=await request("/api/profile","PATCH",{name:$("profileName").textContent,avatar:$("profileAvatar").textContent});setAccount({user:data.user});message("Online profile updated.");}catch(error){message(error.message);}},0);
- });
- socket.on("game-over",()=>setTimeout(refreshLeaderboard,700));
- window.accountProfileSyncBound=true;
- if(token){request("/api/me").then(data=>setAccount(data)).catch(()=>{token="";localStorage.removeItem(TOKEN_KEY);message("Please sign in again to sync your account.");});}
- refreshLeaderboard();
+ const screen=document.getElementById("gameScreen"),content=document.getElementById("gameScreenContent"),title=document.getElementById("gameScreenTitle"),subtitle=document.getElementById("gameScreenSubtitle");
+ let moved=null,parent=null,next=null;
+ function open(node,label,sub){if(!node||!screen.hidden)return;moved=node;parent=node.parentNode;next=node.nextSibling;title.textContent=label;subtitle.textContent=sub||"Play, practise and beat your best score.";content.appendChild(node);screen.hidden=false;document.body.classList.add("game-screen-open");window.scrollTo({top:0,behavior:"smooth"});if(node.id==="multiplayer-arcade"){const n=document.getElementById("arcadePlayerName");if(n&&!n.value)n.value=document.getElementById("profileName")?.textContent||"Guest Player";}}
+ function close(){if(!moved)return;if(parent){if(next&&next.parentNode===parent)parent.insertBefore(moved,next);else parent.appendChild(moved);}moved=null;parent=null;next=null;screen.hidden=true;document.body.classList.remove("game-screen-open");window.scrollTo({top:document.getElementById("mini-games")?.offsetTop||0,behavior:"smooth"});}
+ document.querySelectorAll("[data-open-card]").forEach(b=>b.addEventListener("click",()=>{const card=b.closest(".mini-game-card");open(card,card?.dataset.gameTitle||"Mini Game");}));
+ document.querySelectorAll(".open-multiplayer-game").forEach(b=>b.addEventListener("click",()=>{const game=b.dataset.multiplayerGame||"bingo",type=document.getElementById("arcadeGameType");if(type)type.value=game;open(document.getElementById("multiplayer-arcade"),game==="bingo"?"Bingo Battle":"Multiplayer Tic-Tac-Toe","Create a private room or join your friend's six-digit room code.");}));
+ document.getElementById("gameScreenBack")?.addEventListener("click",close);document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!screen.hidden)close();});
+ document.getElementById("arcadeGameType")?.addEventListener("change",e=>{if(!screen.hidden&&moved?.id==="multiplayer-arcade")title.textContent=e.target.value==="bingo"?"Bingo Battle":"Multiplayer Tic-Tac-Toe";});
 })();
 </script>
 </body>
