@@ -1102,6 +1102,13 @@ socket.on("connect_error", function() {
  $("accountRegister").addEventListener("click",()=>authenticate("/api/register"));
  $("accountLogin").addEventListener("click",()=>authenticate("/api/login"));
  $("accountLogout").addEventListener("click",()=>{token="";localStorage.removeItem(TOKEN_KEY);$("accountLogout").hidden=true;message("Signed out. Your online profile remains saved.");});
+ /* Keep server profile details aligned after the existing local profile editor runs. */
+ if($("profileEdit"))$("profileEdit").addEventListener("click",async()=>{
+  if(!token)return;
+  setTimeout(async()=>{try{const data=await request("/api/profile","PATCH",{name:$("profileName").textContent,avatar:$("profileAvatar").textContent});setAccount({user:data.user});message("Online profile updated.");}catch(error){message(error.message);}},0);
+ });
+ socket.on("game-over",()=>setTimeout(refreshLeaderboard,700));
+ window.accountProfileSyncBound=true;
  if(token){request("/api/me").then(data=>setAccount(data)).catch(()=>{token="";localStorage.removeItem(TOKEN_KEY);message("Please sign in again to sync your account.");});}
  refreshLeaderboard();
 })();
