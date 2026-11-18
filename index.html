@@ -507,7 +507,7 @@
 const socket=io(); window.socket=socket;
 (function(){
  const $=id=>document.getElementById(id),names={bingo:"Bingo Battle",reaction:"Reaction Rush",memory:"Memory Match",math:"Quick Math",word:"Word Scramble",ttt:"Tic-Tac-Toe"};
- let selected="bingo",code=null,state=null,host=false;
+ let selected="bingo",code=null,state=null,host=false,wasStarted=false;
  const screen=$("gameScreen"),area=$("arcadeGameArea"),panel=$("arcadeRoomPanel");
  const emit=(event,data={})=>new Promise(resolve=>socket.emit(event,data,resolve));
  function openGame(game){
@@ -537,7 +537,7 @@ const socket=io(); window.socket=socket;
    area.appendChild(actionButton("DRAW NEXT NUMBER",async()=>{const r=await emit("arcade-bingo-draw");if(!r.success)status(r.message);},!state.started||!host));
    area.appendChild(actionButton("CALL BINGO",async()=>{const r=await emit("arcade-bingo-claim");if(!r.success)status(r.message);},!state.started));
   }else if(state.game==="reaction"){
-   const b=actionButton(st.phase==="go"?"TAP NOW!":st.phase==="waiting"?"WAIT FOR SIGNAL":st.phase==="early"?"FALSE START":"READY",async()=>{const r=await emit("arcade-action",{action:st.phase==="go"?"tap":"ready"});if(!r.success)status(r.message);},!state.started||st.phase==="waiting"||st.phase==="early");b.className="reaction-stage";area.appendChild(b);
+   const b=actionButton(st.phase==="go"?"TAP NOW!":st.phase==="waiting"?"WAIT FOR SIGNAL":"ROUND OVER",async()=>{const r=await emit("arcade-action",{action:"tap"});if(!r.success)status(r.message);},!state.started||st.phase!=="go");b.className="reaction-stage";area.appendChild(b);
   }else if(state.game==="memory"){
    const grid=document.createElement("div");grid.className="memory-board multiplayer-memory";
    for(let i=0;i<16;i++){const shown=(st.matched||[]).includes(i)||(st.flipped||[]).includes(i);grid.appendChild(actionButton(shown?st.deck[i]:"?",async()=>{const r=await emit("arcade-action",{action:"flip",index:i});if(!r.success)status(r.message);},!state.started||!shown&&st.turnIndex!==state.players.findIndex(p=>p.id===socket.id)||shown||(st.matched||[]).includes(i)));}
@@ -558,7 +558,7 @@ const socket=io(); window.socket=socket;
  $("arcadeLeave").addEventListener("click",async()=>{await emit("arcade-leave");code=null;state=null;panel.hidden=true;area.innerHTML="";});
  $("arcadeCopyCode").addEventListener("click",()=>{if(code)navigator.clipboard?.writeText(code).then(()=>$("arcadeCopyCode").textContent="COPIED").catch(()=>status("Room code: "+code));});
  $("gameScreenBack").addEventListener("click",async()=>{if(code)await emit("arcade-leave");code=null;state=null;screen.hidden=true;document.body.classList.remove("game-screen-open");});
- socket.on("arcade-state",data=>{if(code&&data.code===code){state=data;host=data.hostId===socket.id;render();}});
+ socket.on("arcade-state",data=>{if(code&&data.code===code){if(wasStarted&&!data.started&&data.state?.winner!==undefined&&typeof window.recordArcadeMatch==="function")window.recordArcadeMatch(data.game,data.players,data.state.winner);wasStarted=data.started;state=data;host=data.hostId===socket.id;render();}});
  socket.on("disconnect",()=>{if(code)status("Connection lost. Reconnect and rejoin the room.");});
 })();
 </script>
@@ -1047,6 +1047,18 @@ socket.on("connect_error", function() {
   if(!profile.history.length){const li=document.createElement("li");li.textContent="No matches recorded yet.";history.appendChild(li);}
   profile.history.slice(0,5).forEach(item=>{const li=document.createElement("li");li.textContent=item.date+" · "+item.result+" · "+item.score+" pts";history.appendChild(li);});
  }
+ window.recordArcadeMatch=function(game,players,winnerId){
+  if(!Array.isArray(players)||!players.length)return;
+  const room=window.currentArcadeRoomCode||"";
+  const me=players.find(p=>p.id===window.socket?.id);
+  if(!me)return;
+  const won=winnerId===me.id,gained=50+(won?25:0);
+  profile.matches++;if(won)profile.wins++;profile.xp+=gained;
+  profile.history.unshift({room:room||game+"-"+Date.now(),date:new Date().toLocaleDateString(),result:won?"Won "+game:"Played "+game,score:Number(me.score)||0});
+  profile.history=profile.history.slice(0,10);
+  unlock("first-match","First Match");if(profile.wins>0)unlock("first-win","First Win");
+  if(profile.matches>=5)unlock("five-matches","5 Matches");if(profile.xp>=500)unlock("xp-500","500 XP");save();
+ };
  window.recordProfileMatch=function(leaderboard){
   if(!Array.isArray(leaderboard)||!leaderboard.length)return;
   const room=window.currentRoomCode||"";
@@ -1073,17 +1085,6 @@ socket.on("connect_error", function() {
 </script>
 
 
-<script>
-(function(){
- const screen=document.getElementById("gameScreen"),content=document.getElementById("gameScreenContent"),title=document.getElementById("gameScreenTitle"),subtitle=document.getElementById("gameScreenSubtitle");
- let moved=null,parent=null,next=null;
- function open(node,label,sub){if(!node||!screen.hidden)return;moved=node;parent=node.parentNode;next=node.nextSibling;title.textContent=label;subtitle.textContent=sub||"Play, practise and beat your best score.";content.appendChild(node);screen.hidden=false;document.body.classList.add("game-screen-open");window.scrollTo({top:0,behavior:"smooth"});if(node.id==="multiplayer-arcade"){const n=document.getElementById("arcadePlayerName");if(n&&!n.value)n.value=document.getElementById("profileName")?.textContent||"Guest Player";}}
- function close(){if(!moved)return;if(parent){if(next&&next.parentNode===parent)parent.insertBefore(moved,next);else parent.appendChild(moved);}moved=null;parent=null;next=null;screen.hidden=true;document.body.classList.remove("game-screen-open");window.scrollTo({top:document.getElementById("mini-games")?.offsetTop||0,behavior:"smooth"});}
- document.querySelectorAll("[data-open-card]").forEach(b=>b.addEventListener("click",()=>{const card=b.closest(".mini-game-card");open(card,card?.dataset.gameTitle||"Mini Game");}));
- document.querySelectorAll(".open-multiplayer-game").forEach(b=>b.addEventListener("click",()=>{const game=b.dataset.multiplayerGame||"bingo",type=document.getElementById("arcadeGameType");if(type)type.value=game;open(document.getElementById("multiplayer-arcade"),game==="bingo"?"Bingo Battle":"Multiplayer Tic-Tac-Toe","Create a private room or join your friend's six-digit room code.");}));
- document.getElementById("gameScreenBack")?.addEventListener("click",close);document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!screen.hidden)close();});
- document.getElementById("arcadeGameType")?.addEventListener("change",e=>{if(!screen.hidden&&moved?.id==="multiplayer-arcade")title.textContent=e.target.value==="bingo"?"Bingo Battle":"Multiplayer Tic-Tac-Toe";});
-})();
 </script>
 </body>
 </html>
