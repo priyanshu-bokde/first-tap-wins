@@ -362,7 +362,34 @@
     </footer>
 
     
-<script src="/socket.io/socket.io.js"></script>
+<script src="/socket.io/socket.io.js">
+/* Dashboard navigation: keep desktop and mobile active states in sync. */
+document.querySelectorAll(".sidebar-link, .mobile-nav a, .topbar-play").forEach(function(link) {
+    link.addEventListener("click", function() {
+        const target = this.getAttribute("href");
+        if (!target || !target.startsWith("#")) return;
+        document.querySelectorAll(".sidebar-link, .mobile-nav a").forEach(function(item) {
+            const active = item.getAttribute("href") === target;
+            item.classList.toggle("active", active);
+            if (active) item.setAttribute("aria-current", "page");
+            else item.removeAttribute("aria-current");
+        });
+    });
+});
+
+/* Let players dismiss an open dialog with Escape and focus its first field. */
+document.addEventListener("keydown", function(event) {
+    if (event.key === "Escape") closeModals();
+});
+const originalShowMessage = showMessage;
+showMessage = function(action) {
+    originalShowMessage(action);
+    const fieldId = action === "Create Room" ? "roomName" : "joinCode";
+    const field = document.getElementById(fieldId);
+    if (field) field.focus();
+};
+
+</script>
 
 <script>
 const socket = io();
