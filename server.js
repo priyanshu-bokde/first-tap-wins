@@ -554,79 +554,142 @@ io.on("connection", socket => {
 });
 
 
-/* Multiplayer arcade rooms: Tic-Tac-Toe and Bingo. Kept separate from quiz rooms. */
+/* Unified two-player mini-game rooms. */
 const arcadeRooms = new Map();
+const arcadeWins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+const arcadeWords = ["PLANET","GARDEN","PUZZLE","BRIGHT","ORANGE","SILVER","PYTHON","GUITAR","GALAXY","POCKET"];
 function arcadeCode(){let code;do{code=String(Math.floor(100000+Math.random()*900000));}while(arcadeRooms.has(code));return code;}
-function bingoCard(){const cols=[];for(let c=0;c<5;c++){const start=c*15+1;const nums=shuffle(Array.from({length:15},(_,i)=>start+i)).slice(0,5);cols.push(nums);}const card=Array.from({length:5},(_,r)=>Array.from({length:5},(_,c)=>cols[c][r]));card[2][2]="FREE";return card;}
-function arcadePublic(room, viewerId){return {code:room.code,game:room.game,hostId:room.hostId,players:[...room.players.values()].map(p=>({id:p.id,name:p.name,card:p.id===viewerId?p.card||null:null,marks:p.id===viewerId?p.marks||[]:[]})),started:room.started,turn:room.turn,board:room.board||Array(9).fill(""),drawn:room.drawn||[],lastNumber:room.lastNumber||null,status:room.status||"Waiting for players"};}
+function bingoCard(){const cols=[];for(let c=0;c<5;c++){const start=c*15+1;cols.push(shuffle(Array.from({length:15},(_,i)=>start+i)).slice(0,5));}return Array.from({length:5},(_,r)=>Array.from({length:5},(_,c)=>cols[c][r]));}
+function arcadeQuestion(){const a=2+Math.floor(Math.random()*18),b=2+Math.floor(Math.random()*12),op=Math.random()<.5?"+":"×";return {text: a+" "+op+" "+b+" = ?",answer:op==="+"?a+b:a*b};}
+function arcadeWord(){const word=arcadeWords[Math.floor(Math.random()*arcadeWords.length)];let scrambled=shuffle(word.split("")).join("");if(scrambled===word)scrambled=word.slice(1)+word[0];return {word,scrambled};}
+function initArcadeGame(room){
+ room.started=true;room.status="Game in progress";
+ if(room.game==="ttt"){room.board=Array(9).fill("");room.turn=room.hostId;room.winner=null;}
+ if(room.game==="bingo"){room.drawn=[];room.lastNumber=null;for(const p of room.players.values()){p.card=bingoCard();p.marks=[];}}
+ if(room.game==="reaction"){room.phase="ready";room.winner=null;room.reactionStartedAt=null;room.scores={};}
+ if(room.game==="memory"){const faces=["★","●","◆","▲","♥","☀","♣","✦"];room.deck=shuffle(faces.concat(faces));room.matched=[];room.flipped=[];room.turnIndex=0;room.pairScores={};}
+ if(room.game==="math"){room.round=1;room.totalRounds=10;room.question=arcadeQuestion();room.scores={};}
+ if(room.game==="word"){room.round=1;room.totalRounds=8;room.word=arcadeWord();room.scores={};}
+ for(const p of room.players.values()){p.score=0;}
+}
+function arcadePublic(room,viewerId){
+ const state={};
+ for(const key of ["phase","board","turn","winner","drawn","lastNumber","deck","matched","flipped","turnIndex","round","totalRounds","question","scores","pairScores","reactionStartedAt"]){
+  if(key in room)state[key]=room[key];
+ }
+ if(room.word)state.word={scrambled:room.word.scrambled};
+ return {code:room.code,game:room.game,hostId:room.hostId,players:[...room.players.values()].map(p=>({id:p.id,name:p.name,card:p.id===viewerId?p.card||null:null,marks:p.id===viewerId?p.marks||[]:[],score:p.score||0})),started:room.started,turn:room.turn,board:room.board||Array(9).fill(""),drawn:room.drawn||[],lastNumber:room.lastNumber||null,status:room.status||"Waiting for players",state};
+}
 function arcadeBroadcast(room){for(const player of room.players.values())io.to(player.id).emit("arcade-state",arcadePublic(room,player.id));}
+function arcadeFinish(room,message,winnerId=null){room.started=false;room.winner=winnerId;room.status=message;if(room.reactionTimer){clearTimeout(room.reactionTimer);room.reactionTimer=null;}arcadeBroadcast(room);}
+function removeArcadePlayer(socket,room){
+ room.players.delete(socket.id);socket.leave("arcade:"+room.code);
+ if(!room.players.size){if(room.reactionTimer)clearTimeout(room.reactionTimer);arcadeRooms.delete(room.code);return;}
+ room.started=false;room.hostId=room.players.keys().next().value;room.status="Opponent left. The remaining player is now host.";if(room.reactionTimer)clearTimeout(room.reactionTimer);arcadeBroadcast(room);
+}
 io.on("connection",socket=>{
  socket.on("arcade-create",({name,game},cb=()=>{})=>{
-  name=String(name||"").trim().slice(0,20);game=String(game||"").toLowerCase();
-  if(!name||!["bingo","ttt"].includes(game))return cb({success:false,message:"Enter a name and choose Bingo or Tic-Tac-Toe."});
-  const code=arcadeCode(),player={id:socket.id,name,card:game==="bingo"?bingoCard():null,marks:[]};
-  const room={code,game,hostId:socket.id,players:new Map([[socket.id,player]]),started:false,turn:socket.id,board:Array(9).fill(""),drawn:[],status:"Waiting for another player"};
+  name=String(name||"").trim().replace(/[<>]/g,"").slice(0,20);game=String(game||"").toLowerCase();
+  if(name.length<1||!["bingo","ttt","reaction","memory","math","word"].includes(game))return cb({success:false,message:"Enter a player name and choose a mini-game."});
+  const code=arcadeCode(),room={code,game,hostId:socket.id,players:new Map([[socket.id,{id:socket.id,name,score:0,card:game==="bingo"?bingoCard():null,marks:[]}]]),started:false,status:"Waiting for another player"};
   arcadeRooms.set(code,room);socket.join("arcade:"+code);cb({success:true,code});arcadeBroadcast(room);
  });
  socket.on("arcade-join",({name,code},cb=()=>{})=>{
-  name=String(name||"").trim().slice(0,20);code=String(code||"").trim();const room=arcadeRooms.get(code);
-  if(!room||!name)return cb({success:false,message:"Room not found. Check the code and name."});
-  if(room.started||room.players.size>=2)return cb({success:false,message:"This room has already started or is full."});
+  name=String(name||"").trim().replace(/[<>]/g,"").slice(0,20);code=String(code||"").trim();const room=arcadeRooms.get(code);
+  if(!room||!name)return cb({success:false,message:"Room not found. Check the six-digit code and name."});
+  if(room.started||room.players.size>=2)return cb({success:false,message:"This room is already playing or full."});
   if([...room.players.values()].some(p=>p.name.toLowerCase()===name.toLowerCase()))return cb({success:false,message:"That name is already in this room."});
-  room.players.set(socket.id,{id:socket.id,name,card:room.game==="bingo"?bingoCard():null,marks:[]});socket.join("arcade:"+code);cb({success:true,code});room.status="Ready to start";arcadeBroadcast(room);
+  room.players.set(socket.id,{id:socket.id,name,score:0,card:room.game==="bingo"?bingoCard():null,marks:[]});socket.join("arcade:"+code);room.status="Both players are here. Host can start.";cb({success:true,code});arcadeBroadcast(room);
  });
- socket.on("arcade-start",(cb=()=>{})=>{
+ socket.on("arcade-start",cb=>{
   const room=[...arcadeRooms.values()].find(r=>r.players.has(socket.id));
-  if(!room||room.hostId!==socket.id)return cb({success:false,message:"Only the room host can start."});
-  if(room.players.size!==2)return cb({success:false,message:"Two players are required."});
-  if(room.started)return cb({success:false,message:"The game has already started."});
-  if(room.game==="ttt"){room.board=Array(9).fill("");room.turn=room.hostId;}
-  else{room.drawn=[];room.lastNumber=null;for(const p of room.players.values()){p.card=bingoCard();p.marks=[];}}
-  room.started=true;room.status=room.game==="bingo"?"Bingo is live! Host draws numbers.":room.players.get(room.hostId).name+" starts";arcadeBroadcast(room);cb({success:true});
+  if(!room||room.hostId!==socket.id)return cb?.({success:false,message:"Only the host can start."});
+  if(room.players.size!==2)return cb?.({success:false,message:"Invite one friend first. Two players are required."});
+  if(room.started)return cb?.({success:false,message:"The game is already running."});
+  initArcadeGame(room);arcadeBroadcast(room);cb?.({success:true});
  });
  socket.on("arcade-ttt-move",({index},cb=()=>{})=>{
   const room=[...arcadeRooms.values()].find(r=>r.players.has(socket.id));
   if(!room||room.game!=="ttt"||!room.started)return cb({success:false,message:"Tic-Tac-Toe is not active."});
   index=Number(index);if(room.turn!==socket.id||!Number.isInteger(index)||index<0||index>8||room.board[index])return cb({success:false,message:"That move is not available."});
-  const mark=room.players.get(socket.id).id===room.hostId?"X":"O";room.board[index]=mark;
-  const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-  const won=wins.some(line=>line.every(i=>room.board[i]===mark));
-  if(won){room.status=room.players.get(socket.id).name+" wins!";room.started=false;}
-  else if(room.board.every(Boolean)){room.status="It's a draw!";room.started=false;}
+  const mark=socket.id===room.hostId?"X":"O";room.board[index]=mark;
+  const won=arcadeWins.some(line=>line.every(i=>room.board[i]===mark));
+  if(won){room.players.get(socket.id).score++;room.started=false;room.winner=socket.id;room.status=room.players.get(socket.id).name+" wins! Rematch is ready.";}
+  else if(room.board.every(Boolean)){room.started=false;room.winner=null;room.status="It's a draw! Rematch is ready.";}
   else{room.turn=[...room.players.keys()].find(id=>id!==socket.id);room.status=room.players.get(room.turn).name+"'s turn";}
   arcadeBroadcast(room);cb({success:true});
  });
- socket.on("arcade-bingo-draw",(cb=()=>{})=>{
+ socket.on("arcade-bingo-draw",cb=>{
   const room=[...arcadeRooms.values()].find(r=>r.players.has(socket.id));
-  if(!room||room.game!=="bingo"||!room.started||room.hostId!==socket.id)return cb({success:false,message:"Only the host can draw a number during Bingo."});
+  if(!room||room.game!=="bingo"||!room.started||room.hostId!==socket.id)return cb?.({success:false,message:"Only the host can draw a number during Bingo."});
   const remaining=Array.from({length:75},(_,i)=>i+1).filter(n=>!room.drawn.includes(n));
-  if(!remaining.length)return cb({success:false,message:"All numbers have been drawn."});
-  room.lastNumber=remaining[Math.floor(Math.random()*remaining.length)];room.drawn.push(room.lastNumber);
-  room.status="Number "+room.lastNumber+" called";arcadeBroadcast(room);cb({success:true});
+  if(!remaining.length)return cb?.({success:false,message:"All numbers have been drawn."});
+  room.lastNumber=remaining[Math.floor(Math.random()*remaining.length)];room.drawn.push(room.lastNumber);room.status="Number "+room.lastNumber+" called";arcadeBroadcast(room);cb?.({success:true});
  });
  socket.on("arcade-bingo-mark",({number},cb=()=>{})=>{
   const room=[...arcadeRooms.values()].find(r=>r.players.has(socket.id));
   if(!room||room.game!=="bingo"||!room.started)return cb({success:false,message:"Bingo is not active."});
-  const player=room.players.get(socket.id);number=Number(number);
-  if(!room.drawn.includes(number)||!player.card.flat().includes(number))return cb({success:false,message:"That number has not been called or is not on your card."});
-  if(!player.marks.includes(number))player.marks.push(number);
-  arcadeBroadcast(room);cb({success:true});
+  const p=room.players.get(socket.id);number=Number(number);
+  if(!room.drawn.includes(number)||!p.card.flat().includes(number))return cb({success:false,message:"That number has not been called or is not on your card."});
+  if(!p.marks.includes(number))p.marks.push(number);arcadeBroadcast(room);cb({success:true});
  });
  socket.on("arcade-bingo-claim",cb=>{
   const room=[...arcadeRooms.values()].find(r=>r.players.has(socket.id));
-  if(!room||room.game!=="bingo"||!room.started)return cb({success:false,message:"Bingo is not active."});
+  if(!room||room.game!=="bingo"||!room.started)return cb?.({success:false,message:"Bingo is not active."});
   const p=room.players.get(socket.id),marked=(r,c)=>p.card[r][c]==="FREE"||p.marks.includes(p.card[r][c]);
-  const lines=[[0,1,2,3,4].map(i=>[2,i]),[0,1,2,3,4].map(i=>[i,2]),[0,1,2,3,4].map(i=>[i,i]),[0,1,2,3,4].map(i=>[i,4-i]),...[0,1,2,3,4].map(r=>[0,1,2,3,4].map(c=>[r,c])),...[0,1,2,3,4].map(c=>[0,1,2,3,4].map(r=>[r,c]))];
-  if(!lines.some(line=>line.every(([r,c])=>marked(r,c))))return cb({success:false,message:"No complete line yet. Keep playing!"});
-  room.started=false;room.status=p.name+" called BINGO and wins!";arcadeBroadcast(room);cb({success:true});
+  const lines=[...[0,1,2,3,4].map(r=>[0,1,2,3,4].map(c=>[r,c])),...[0,1,2,3,4].map(c=>[0,1,2,3,4].map(r=>[r,c])),[0,1,2,3,4].map(i=>[i,i]),[0,1,2,3,4].map(i=>[i,4-i])];
+  if(!lines.some(line=>line.every(([r,c])=>marked(r,c))))return cb?.({success:false,message:"No complete line yet. Keep playing!"});
+  arcadeFinish(room,p.name+" called BINGO and wins!",socket.id);cb?.({success:true});
+ });
+ socket.on("arcade-action",(payload={},cb=()=>{})=>{
+  const room=[...arcadeRooms.values()].find(r=>r.players.has(socket.id));
+  if(!room||!room.started)return cb({success:false,message:"The game is not active."});
+  const player=room.players.get(socket.id),action=String(payload.action||"");
+  if(room.game==="reaction"){
+   if(action==="ready"&&room.phase==="ready"){
+    room.phase="waiting";room.status="Wait for the signal…";room.reactionTimer=setTimeout(()=>{if(!room.started||room.phase!=="waiting")return;room.phase="go";room.reactionStartedAt=Date.now();room.status="TAP NOW!";arcadeBroadcast(room);},1200+Math.floor(Math.random()*2800));arcadeBroadcast(room);return cb({success:true});
+   }
+   if(action==="tap"){
+    if(room.phase==="waiting"){room.phase="early";room.status=player.name+" tapped too early. Rematch to try again.";if(room.reactionTimer)clearTimeout(room.reactionTimer);room.started=false;arcadeBroadcast(room);return cb({success:true});}
+    if(room.phase!=="go")return cb({success:false,message:"Wait for the signal."});
+    const elapsed=Date.now()-room.reactionStartedAt;player.score=elapsed;arcadeFinish(room,player.name+" wins with "+elapsed+" ms!",socket.id);return cb({success:true,elapsed});
+   }
+  }
+  if(room.game==="memory"&&action==="flip"){
+   const index=Number(payload.index);if(!Number.isInteger(index)||index<0||index>=16||room.turnIndex!==[...room.players.keys()].indexOf(socket.id)||room.matched.includes(index)||room.flipped.includes(index))return cb({success:false,message:"That card cannot be flipped now."});
+   room.flipped.push(index);
+   if(room.flipped.length===2){
+    const [a,b]=room.flipped;
+    if(room.deck[a]===room.deck[b]){room.matched.push(a,b);room.pairScores[socket.id]=(room.pairScores[socket.id]||0)+1;room.flipped=[];if(room.matched.length===16){const winner=[...room.players.keys()].sort((x,y)=>(room.pairScores[y]||0)-(room.pairScores[x]||0))[0];arcadeFinish(room,room.players.get(winner).name+" wins Memory Match!",winner);}else room.status="Pair found! Same player plays again.";}
+    else{room.status="No match. Turn changes.";arcadeBroadcast(room);setTimeout(()=>{if(!room.started)return;room.flipped=[];room.turnIndex=(room.turnIndex+1)%2;room.status=room.players.get([...room.players.keys()][room.turnIndex]).name+"'s turn";arcadeBroadcast(room);},900);return cb({success:true});}
+   }
+   arcadeBroadcast(room);return cb({success:true});
+  }
+  if(room.game==="math"&&action==="answer"){
+   if(String(payload.answer??"").trim()==="")return cb({success:false,message:"Enter an answer."});
+   if(Number(payload.answer)!==room.question.answer)return cb({success:false,message:"Not quite. Try again."});
+   player.score++;if(room.round>=room.totalRounds){const winner=[...room.players.values()].sort((a,b)=>b.score-a.score)[0];arcadeFinish(room,winner.name+" wins Quick Math!",winner.id);}
+   else{room.round++;room.question=arcadeQuestion();room.status=player.name+" scored! Next question is ready.";arcadeBroadcast(room);}return cb({success:true});
+  }
+  if(room.game==="word"&&action==="answer"){
+   if(String(payload.answer||"").trim().toUpperCase()!==room.word.word)return cb({success:false,message:"Not quite. Try again."});
+   player.score++;if(room.round>=room.totalRounds){const winner=[...room.players.values()].sort((a,b)=>b.score-a.score)[0];arcadeFinish(room,winner.name+" wins Word Scramble!",winner.id);}
+   else{room.round++;room.word=arcadeWord();room.status=player.name+" solved it! Next word.";arcadeBroadcast(room);}return cb({success:true});
+  }
+  cb({success:false,message:"That action is not supported for this game."});
+ });
+ socket.on("arcade-rematch",cb=>{
+  const room=[...arcadeRooms.values()].find(r=>r.players.has(socket.id));
+  if(!room)return cb?.({success:false,message:"Room not found."});
+  if(room.players.size!==2)return cb?.({success:false,message:"Wait for your friend to rejoin."});
+  if(room.reactionTimer)clearTimeout(room.reactionTimer);initArcadeGame(room);arcadeBroadcast(room);cb?.({success:true});
  });
  socket.on("arcade-leave",cb=>{
-  const entry=[...arcadeRooms.entries()].find(([,r])=>r.players.has(socket.id));
-  if(entry){const [code,room]=entry;room.players.delete(socket.id);socket.leave("arcade:"+code);if(!room.players.size)arcadeRooms.delete(code);else{room.started=false;room.hostId=room.players.keys().next().value;room.status="Opponent left. Waiting for a new player.";arcadeBroadcast(room);}}
-  cb?.({success:true});
+  const room=[...arcadeRooms.values()].find(r=>r.players.has(socket.id));if(room)removeArcadePlayer(socket,room);cb?.({success:true});
  });
- socket.on("disconnect",()=>{for(const [code,room] of arcadeRooms){if(room.players.has(socket.id)){room.players.delete(socket.id);if(!room.players.size)arcadeRooms.delete(code);else{room.started=false;room.hostId=room.players.keys().next().value;room.status="Opponent disconnected.";arcadeBroadcast(room);}}}});
+ socket.on("disconnect",()=>{for(const room of arcadeRooms.values())if(room.players.has(socket.id))removeArcadePlayer(socket,room);});
 });
+
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`First Tap Wins running at http://localhost:${PORT}`));
