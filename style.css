@@ -877,3 +877,10 @@ html{scroll-behavior:smooth}
 .arcade-answer-form { display:flex; flex-direction:column; align-items:center; gap:10px; width:100%; }
 .arcade-answer-form button { width:min(100%,420px); min-height:48px; background:#2563eb; color:#fff; border:0; border-radius:10px; font-size:12px; font-weight:900; letter-spacing:.05em; }
 .arcade-answer-form button:disabled { opacity:.55; cursor:wait; }
+
+/* Mini-game room size selector and player count */
+.arcade-room-meta { display:flex; align-items:center; flex-wrap:wrap; gap:7px; }
+#arcadePlayerCount { display:inline-flex; align-items:center; padding:6px 10px; border-radius:999px; background:#eaf3ff; color:#175ca7; font-size:11px; font-weight:950; letter-spacing:.04em; }
+.arcade-room-controls-clean select { min-width:120px; }
+#arcadeMaxPlayersLabel[hidden] { display:none !important; }
+@media(max-width:600px){ .arcade-room-meta { justify-content:flex-start; } }
