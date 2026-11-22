@@ -574,7 +574,7 @@ function initArcadeGame(room){
 }
 function arcadePublic(room,viewerId){
  const state={};
- for(const key of ["phase","board","turn","winner","drawn","lastNumber","deck","matched","flipped","turnIndex","round","totalRounds","question","scores","pairScores","reactionStartedAt"]){
+ for(const key of ["phase","board","turn","winner","drawn","lastNumber","deck","matched","flipped","turnIndex","round","totalRounds","question","scores","pairScores","reactionStartedAt","bingoPattern"]){
   if(key in room)state[key]=room[key];
  if(state.deck)state.deck=state.deck.map((face,i)=>(room.matched||[]).includes(i)||(room.flipped||[]).includes(i)?face:null);
  if(state.question)state.question={text:state.question.text};
@@ -590,10 +590,10 @@ function removeArcadePlayer(socket,room){
  room.started=false;room.hostId=room.players.keys().next().value;room.status="Opponent left. The remaining player is now host.";if(room.reactionTimer)clearTimeout(room.reactionTimer);arcadeBroadcast(room);
 }
 io.on("connection",socket=>{
- socket.on("arcade-create",({name,game},cb=()=>{})=>{
+ socket.on("arcade-create",({name,game,bingoPattern},cb=()=>{})=>{
   name=String(name||"").trim().replace(/[<>]/g,"").slice(0,20);game=String(game||"").toLowerCase();
   if(name.length<1||!["bingo","ttt","reaction","memory","math","word"].includes(game))return cb({success:false,message:"Enter a player name and choose a mini-game."});
-  const code=arcadeCode(),room={code,game,hostId:socket.id,players:new Map([[socket.id,{id:socket.id,name,score:0,card:game==="bingo"?bingoCard():null,marks:[]}]]),started:false,status:"Waiting for another player"};
+  const code=arcadeCode(),room={code,game,bingoPattern:["line","corners","full"].includes(bingoPattern)?bingoPattern:"line",hostId:socket.id,players:new Map([[socket.id,{id:socket.id,name,score:0,card:game==="bingo"?bingoCard():null,marks:[]}]]),started:false,status:"Waiting for another player"};
   arcadeRooms.set(code,room);socket.join("arcade:"+code);cb({success:true,code});arcadeBroadcast(room);
  });
  socket.on("arcade-join",({name,code},cb=()=>{})=>{
@@ -639,8 +639,8 @@ io.on("connection",socket=>{
   const room=[...arcadeRooms.values()].find(r=>r.players.has(socket.id));
   if(!room||room.game!=="bingo"||!room.started)return cb?.({success:false,message:"Bingo is not active."});
   const p=room.players.get(socket.id),marked=(r,c)=>p.card[r][c]==="FREE"||p.marks.includes(p.card[r][c]);
-  const lines=[...[0,1,2,3,4].map(r=>[0,1,2,3,4].map(c=>[r,c])),...[0,1,2,3,4].map(c=>[0,1,2,3,4].map(r=>[r,c])),[0,1,2,3,4].map(i=>[i,i]),[0,1,2,3,4].map(i=>[i,4-i])];
-  if(!lines.some(line=>line.every(([r,c])=>marked(r,c))))return cb?.({success:false,message:"No complete line yet. Keep playing!"});
+  const lines=room.bingoPattern==="corners"?[[[0,0],[0,4],[4,0],[4,4]]]:room.bingoPattern==="full"?[Array.from({length:25},(_,i)=>[Math.floor(i/5),i%5])]:[...[0,1,2,3,4].map(r=>[0,1,2,3,4].map(c=>[r,c])),...[0,1,2,3,4].map(c=>[0,1,2,3,4].map(r=>[r,c])),[0,1,2,3,4].map(i=>[i,i]),[0,1,2,3,4].map(i=>[i,4-i])];
+  if(!lines.some(line=>line.every(([r,c])=>marked(r,c))))return cb?.({success:false,message:room.bingoPattern==="corners"?"Mark all four corners first.":room.bingoPattern==="full"?"Complete the full card to win!":"No complete line yet. Keep playing!"});
   arcadeFinish(room,p.name+" called BINGO and wins!",socket.id);cb?.({success:true});
  });
  socket.on("arcade-action",(payload={},cb=()=>{})=>{
