@@ -509,7 +509,7 @@ const socket=io(); window.socket=socket;
  const $=id=>document.getElementById(id),names={bingo:"Bingo Battle",reaction:"Reaction Rush",memory:"Memory Match",math:"Quick Math",word:"Word Scramble",ttt:"Tic-Tac-Toe"};
  let selected="bingo",code=null,state=null,host=false,wasStarted=false;
  const screen=$("gameScreen"),area=$("arcadeGameArea"),panel=$("arcadeRoomPanel"),controls=document.querySelector(".arcade-room-controls-clean"),patternSelect=$("arcadeBingoPattern");
- const emit=(event,data={})=>new Promise(resolve=>socket.emit(event,data,resolve));
+ const emit=(event,data={})=>new Promise(resolve=>{if(!socket.connected)return resolve({success:false,message:"Not connected. Check the server and try again."});socket.timeout(7000).emit(event,data,(error,result)=>resolve(error?{success:false,message:"The server did not respond. Please try again."}:result||{success:false,message:"No response from the server."}));});
  function openGame(game){
   selected=game;state=null;code=null;panel.hidden=true;controls.hidden=false;patternSelect.closest("label").hidden=game!=="bingo";$("arcadeFeedback").textContent="Create a private room or join a friend's six-digit code.";
   $("gameScreenTitle").textContent=names[game];$("gameScreenSubtitle").textContent="Two players · private room · live multiplayer";
@@ -527,8 +527,8 @@ const socket=io(); window.socket=socket;
   area.hidden=!state.started&&state.game!=="ttt";area.innerHTML="";
   const st=state.state||{};
   if(state.game==="ttt"){
-   const board=document.createElement("div");board.className="arcade-ttt-board";
-   (state.board||Array(9).fill("")).forEach((mark,i)=>board.appendChild(actionButton(mark||"·",async()=>{const r=await emit("arcade-ttt-move",{index:i});if(!r.success)status(r.message);},!state.started||state.turn!==socket.id||!!mark)));
+   const turn=document.createElement("p");turn.className="arcade-turn-status";turn.textContent=state.started?(state.turn===socket.id?"YOUR TURN — MAKE A MOVE":"WAITING FOR YOUR OPPONENT"):(state.status||"Waiting for players");area.appendChild(turn);const board=document.createElement("div");board.className="arcade-ttt-board";
+   (state.board||Array(9).fill("")).forEach((mark,i)=>board.appendChild(actionButton(mark||"＋",async()=>{const r=await emit("arcade-ttt-move",{index:i});if(!r.success)status(r.message);},!state.started||state.turn!==socket.id||!!mark)));
    area.appendChild(board);
   }else if(state.game==="bingo"){
    const me=state.players.find(p=>p.id===socket.id);
@@ -544,10 +544,8 @@ const socket=io(); window.socket=socket;
    area.appendChild(grid);const score=document.createElement("p");score.textContent="Pairs: "+JSON.stringify(st.pairScores||{});area.appendChild(score);
   }else if(state.game==="math"||state.game==="word"){
    const q=document.createElement("h2");q.className=state.game==="math"?"math-question":"word-scramble";q.textContent=state.game==="math"?(st.question?.text||"Get ready"):(st.word?.scrambled||"Get ready");area.appendChild(q);
-   const progress=document.createElement("p");progress.textContent="Round "+(st.round||1)+" / "+(st.totalRounds||10);area.appendChild(progress);
-   const input=document.createElement("input");input.className="word-answer";input.placeholder=state.game==="math"?"Your answer":"Unscrambled word";input.autocomplete="off";input.id="arcadeAnswer";area.appendChild(input);
-   area.appendChild(actionButton("SUBMIT",async()=>{const r=await emit("arcade-action",{action:"answer",answer:input.value});if(!r.success)status(r.message);else input.value="";}));
-   input.addEventListener("keydown",e=>{if(e.key==="Enter")area.querySelector("button:last-child")?.click();});
+   const progress=document.createElement("p");progress.className="arcade-round-status";progress.textContent="Round "+(st.round||1)+" / "+(st.totalRounds||10);area.appendChild(progress);
+   const form=document.createElement("form");form.className="arcade-answer-form";const input=document.createElement("input");input.className="word-answer";input.placeholder=state.game==="math"?"Enter your answer":"Type the correct word";input.autocomplete="off";input.id="arcadeAnswer";input.required=true;if(state.game==="math"){input.type="number";input.inputMode="numeric";}else{input.type="text";input.autocapitalize="characters";}const submit=actionButton("SUBMIT ANSWER",async()=>{},false);submit.type="submit";form.append(input,submit);form.addEventListener("submit",async e=>{e.preventDefault();if(!input.value.trim())return;submit.disabled=true;const r=await emit("arcade-action",{action:"answer",answer:input.value});if(!r.success){status(r.message);submit.disabled=false;input.focus();}else input.value="";});area.appendChild(form);
   }
  }
  document.querySelectorAll(".mini-open-game").forEach(b=>b.addEventListener("click",()=>openGame(b.dataset.miniGame)));
