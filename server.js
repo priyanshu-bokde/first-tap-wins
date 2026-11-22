@@ -580,7 +580,7 @@ function arcadePublic(room,viewerId){
  if(state.question)state.question={text:state.question.text};
  }
  if(room.word)state.word={scrambled:room.word.scrambled};
- return {code:room.code,game:room.game,hostId:room.hostId,players:[...room.players.values()].map(p=>({id:p.id,name:p.name,card:p.id===viewerId?p.card||null:null,marks:p.id===viewerId?p.marks||[]:[],score:p.score||0})),started:room.started,turn:room.turn,board:room.board||Array(9).fill(""),drawn:room.drawn||[],lastNumber:room.lastNumber||null,status:room.status||"Waiting for players",state};
+ return {code:room.code,game:room.game,hostId:room.hostId,maxPlayers:room.maxPlayers||2,players:[...room.players.values()].map(p=>({id:p.id,name:p.name,card:p.id===viewerId?p.card||null:null,marks:p.id===viewerId?p.marks||[]:[],score:p.score||0})),started:room.started,turn:room.turn,board:room.board||Array(9).fill(""),drawn:room.drawn||[],lastNumber:room.lastNumber||null,status:room.status||"Waiting for players",state};
 }
 function arcadeBroadcast(room){for(const player of room.players.values())io.to(player.id).emit("arcade-state",arcadePublic(room,player.id));}
 function arcadeFinish(room,message,winnerId=null){room.started=false;room.winner=winnerId;room.status=message;if(room.reactionTimer){clearTimeout(room.reactionTimer);room.reactionTimer=null;}arcadeBroadcast(room);}
@@ -590,23 +590,25 @@ function removeArcadePlayer(socket,room){
  room.started=false;room.hostId=room.players.keys().next().value;room.status="Opponent left. The remaining player is now host.";if(room.reactionTimer)clearTimeout(room.reactionTimer);arcadeBroadcast(room);
 }
 io.on("connection",socket=>{
- socket.on("arcade-create",({name,game,bingoPattern},cb=()=>{})=>{
+ socket.on("arcade-create",({name,game,bingoPattern,maxPlayers},cb=()=>{})=>{
   name=String(name||"").trim().replace(/[<>]/g,"").slice(0,20);game=String(game||"").toLowerCase();
   if(name.length<1||!["bingo","ttt","reaction","memory","math","word"].includes(game))return cb({success:false,message:"Enter a player name and choose a mini-game."});
-  const code=arcadeCode(),room={code,game,bingoPattern:["line","corners","full"].includes(bingoPattern)?bingoPattern:"line",hostId:socket.id,players:new Map([[socket.id,{id:socket.id,name,score:0,card:game==="bingo"?bingoCard():null,marks:[]}]]),started:false,status:"Waiting for another player"};
+  maxPlayers=game==="ttt"?2:Number(maxPlayers);
+  if(!Number.isInteger(maxPlayers)||maxPlayers<2||maxPlayers>30)return cb({success:false,message:"Choose between 2 and 30 players."});
+  const code=arcadeCode(),room={code,game,maxPlayers,bingoPattern:["line","corners","full"].includes(bingoPattern)?bingoPattern:"line",hostId:socket.id,players:new Map([[socket.id,{id:socket.id,name,score:0,card:game==="bingo"?bingoCard():null,marks:[]}]]),started:false,status:"Waiting for players"};
   arcadeRooms.set(code,room);socket.join("arcade:"+code);cb({success:true,code});arcadeBroadcast(room);
  });
  socket.on("arcade-join",({name,code},cb=()=>{})=>{
   name=String(name||"").trim().replace(/[<>]/g,"").slice(0,20);code=String(code||"").trim();const room=arcadeRooms.get(code);
   if(!room||!name)return cb({success:false,message:"Room not found. Check the six-digit code and name."});
-  if(room.started||room.players.size>=2)return cb({success:false,message:"This room is already playing or full."});
+  if(room.started||room.players.size>=room.maxPlayers)return cb({success:false,message:room.started?"This room has already started.":"This room is full."});
   if([...room.players.values()].some(p=>p.name.toLowerCase()===name.toLowerCase()))return cb({success:false,message:"That name is already in this room."});
-  room.players.set(socket.id,{id:socket.id,name,score:0,card:room.game==="bingo"?bingoCard():null,marks:[]});socket.join("arcade:"+code);room.status="Both players are here. Host can start.";cb({success:true,code});arcadeBroadcast(room);
+  room.players.set(socket.id,{id:socket.id,name,score:0,card:room.game==="bingo"?bingoCard():null,marks:[]});socket.join("arcade:"+code);room.status=room.players.size>=2?"Players are ready. Host can start.":"Waiting for at least one more player.";cb({success:true,code});arcadeBroadcast(room);
  });
  socket.on("arcade-start",(_payload={},cb=()=>{})=>{
   const room=[...arcadeRooms.values()].find(r=>r.players.has(socket.id));
   if(!room||room.hostId!==socket.id)return cb?.({success:false,message:"Only the host can start."});
-  if(room.players.size!==2)return cb?.({success:false,message:"Invite one friend first. Two players are required."});
+  if(room.players.size<2)return cb?.({success:false,message:"At least two players are required to start."});
   if(room.started)return cb?.({success:false,message:"The game is already running."});
   initArcadeGame(room);arcadeBroadcast(room);cb?.({success:true});
  });
@@ -660,7 +662,7 @@ io.on("connection",socket=>{
    if(room.flipped.length===2){
     const [a,b]=room.flipped;
     if(room.deck[a]===room.deck[b]){room.matched.push(a,b);room.pairScores[socket.id]=(room.pairScores[socket.id]||0)+1;player.score=room.pairScores[socket.id];room.flipped=[];if(room.matched.length===16){const winner=[...room.players.keys()].sort((x,y)=>(room.pairScores[y]||0)-(room.pairScores[x]||0))[0];arcadeFinish(room,room.players.get(winner).name+" wins Memory Match!",winner);}else room.status="Pair found! Same player plays again.";}
-    else{room.status="No match. Turn changes.";arcadeBroadcast(room);setTimeout(()=>{if(!room.started)return;room.flipped=[];room.turnIndex=(room.turnIndex+1)%2;room.status=room.players.get([...room.players.keys()][room.turnIndex]).name+"'s turn";arcadeBroadcast(room);},900);return cb({success:true});}
+    else{room.status="No match. Turn changes.";arcadeBroadcast(room);setTimeout(()=>{if(!room.started)return;room.flipped=[];room.turnIndex=(room.turnIndex+1)%room.players.size;room.status=room.players.get([...room.players.keys()][room.turnIndex]).name+"'s turn";arcadeBroadcast(room);},900);return cb({success:true});}
    }
    arcadeBroadcast(room);return cb({success:true});
   }
@@ -680,7 +682,7 @@ io.on("connection",socket=>{
  socket.on("arcade-rematch",(_payload={},cb=()=>{})=>{
   const room=[...arcadeRooms.values()].find(r=>r.players.has(socket.id));
   if(!room)return cb?.({success:false,message:"Room not found."});
-  if(room.players.size!==2)return cb?.({success:false,message:"Wait for your friend to rejoin."});
+  if(room.players.size<2)return cb?.({success:false,message:"At least two players must be in the room for a rematch."});
   if(room.reactionTimer)clearTimeout(room.reactionTimer);initArcadeGame(room);arcadeBroadcast(room);cb?.({success:true});
  });
  socket.on("arcade-leave",(_payload={},cb=()=>{})=>{
