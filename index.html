@@ -239,13 +239,14 @@
   <section class="arcade-room-shell">
    <div class="arcade-room-controls arcade-room-controls-clean">
     <label>Player name<input id="arcadePlayerName" maxlength="20" placeholder="Your name" autocomplete="nickname"></label>
+    <label id="arcadeMaxPlayersLabel">Maximum players<select id="arcadeMaxPlayers"><option value="2">2 players</option><option value="3">3 players</option><option value="4" selected>4 players</option><option value="5">5 players</option><option value="6">6 players</option><option value="7">7 players</option><option value="8">8 players</option><option value="9">9 players</option><option value="10">10 players</option><option value="11">11 players</option><option value="12">12 players</option><option value="13">13 players</option><option value="14">14 players</option><option value="15">15 players</option><option value="16">16 players</option><option value="17">17 players</option><option value="18">18 players</option><option value="19">19 players</option><option value="20">20 players</option><option value="21">21 players</option><option value="22">22 players</option><option value="23">23 players</option><option value="24">24 players</option><option value="25">25 players</option><option value="26">26 players</option><option value="27">27 players</option><option value="28">28 players</option><option value="29">29 players</option><option value="30">30 players</option></select></label>
     <button type="button" id="arcadeCreate">CREATE ROOM</button>
     <label id="arcadeBingoPatternLabel">Bingo win condition<select id="arcadeBingoPattern"><option value="line">Complete any line</option><option value="corners">Four corners</option><option value="full">Full card</option></select></label><label>Six-digit room code<input id="arcadeJoinCode" inputmode="numeric" maxlength="6" placeholder="Enter code"></label>
     <button type="button" id="arcadeJoin">JOIN ROOM</button>
    </div>
    <p class="arcade-feedback" id="arcadeFeedback" aria-live="polite">Create a room and share its code with one friend.</p>
    <div class="arcade-room-panel" id="arcadeRoomPanel" hidden>
-    <div class="arcade-room-top"><strong id="arcadeRoomTitle">Game room</strong><span>CODE: <b id="arcadeRoomCode"></b> <button type="button" id="arcadeCopyCode">COPY</button></span></div>
+    <div class="arcade-room-top"><strong id="arcadeRoomTitle">Game room</strong><span class="arcade-room-meta"><b id="arcadePlayerCount">1/4 PLAYERS</b> · CODE: <b id="arcadeRoomCode"></b> <button type="button" id="arcadeCopyCode">COPY</button></span></div>
     <p id="arcadeRoomStatus" aria-live="polite">Waiting for another player…</p><div id="arcadePlayers" class="arcade-players"></div>
     <div class="arcade-room-actions"><button type="button" id="arcadeStart">START GAME</button><button type="button" id="arcadeRematch" hidden>PLAY AGAIN</button><button type="button" id="arcadeLeave" class="arcade-leave">LEAVE ROOM</button></div>
     <div id="arcadeGameArea" class="arcade-game-area" hidden></div>
@@ -508,11 +509,11 @@ const socket=io(); window.socket=socket;
 (function(){
  const $=id=>document.getElementById(id),names={bingo:"Bingo Battle",reaction:"Reaction Rush",memory:"Memory Match",math:"Quick Math",word:"Word Scramble",ttt:"Tic-Tac-Toe"};
  let selected="bingo",code=null,state=null,host=false,wasStarted=false;
- const screen=$("gameScreen"),area=$("arcadeGameArea"),panel=$("arcadeRoomPanel"),controls=document.querySelector(".arcade-room-controls-clean"),patternSelect=$("arcadeBingoPattern");
+ const screen=$("gameScreen"),area=$("arcadeGameArea"),panel=$("arcadeRoomPanel"),controls=document.querySelector(".arcade-room-controls-clean"),patternSelect=$("arcadeBingoPattern"),maxPlayersSelect=$("arcadeMaxPlayers"),maxPlayersLabel=$("arcadeMaxPlayersLabel");
  const emit=(event,data={})=>new Promise(resolve=>{if(!socket.connected)return resolve({success:false,message:"Not connected. Check the server and try again."});socket.timeout(7000).emit(event,data,(error,result)=>resolve(error?{success:false,message:"The server did not respond. Please try again."}:result||{success:false,message:"No response from the server."}));});
  function openGame(game){
-  selected=game;state=null;code=null;panel.hidden=true;controls.hidden=false;patternSelect.closest("label").hidden=game!=="bingo";$("arcadeFeedback").textContent="Create a private room or join a friend's six-digit code.";
-  $("gameScreenTitle").textContent=names[game];$("gameScreenSubtitle").textContent="Two players · private room · live multiplayer";
+  selected=game;state=null;code=null;panel.hidden=true;controls.hidden=false;patternSelect.closest("label").hidden=game!=="bingo";maxPlayersLabel.hidden=game==="ttt";maxPlayersSelect.value=game==="ttt"?"2":"4";$("arcadeFeedback").textContent="Choose the room size, create a room, or join a friend's six-digit code.";
+  $("gameScreenTitle").textContent=names[game];$("gameScreenSubtitle").textContent=game==="ttt"?"Two players · private room · live multiplayer":"2–30 players · private room · live multiplayer";
   $("arcadePlayerName").value=$("profileName")?.textContent||localStorage.getItem("ftw-player-name")||"Player";
   screen.hidden=false;document.body.classList.add("game-screen-open");window.scrollTo({top:0,behavior:"smooth"});
  }
@@ -521,9 +522,9 @@ const socket=io(); window.socket=socket;
  function render(){
   if(!state||!code)return;
   $("arcadeRoomPanel").hidden=false;$("arcadeRoomTitle").textContent=names[state.game];$("arcadeRoomCode").textContent=state.code;
-  status(state.status);$("arcadePlayers").textContent=state.players.map(p=>p.name+(p.id===state.hostId?" · HOST":"")+" · "+(p.score||0)+" pts").join("   |   ");
-  $("arcadeStart").hidden=state.started||state.players.length!==2||!host;
-  $("arcadeRematch").hidden=state.started||state.players.length!==2;
+  status(state.status);$("arcadePlayerCount").textContent=state.players.length+"/"+state.maxPlayers+" PLAYERS";$("arcadePlayers").textContent=state.players.map(p=>p.name+(p.id===state.hostId?" · HOST":"")+" · "+(p.score||0)+" pts").join("   |   ");
+  $("arcadeStart").hidden=state.started||state.players.length<2||!host;
+  $("arcadeRematch").hidden=state.started||state.players.length<2;
   area.hidden=!state.started&&state.game!=="ttt";area.innerHTML="";
   const st=state.state||{};
   if(state.game==="ttt"){
@@ -549,7 +550,7 @@ const socket=io(); window.socket=socket;
   }
  }
  document.querySelectorAll(".mini-open-game").forEach(b=>b.addEventListener("click",()=>openGame(b.dataset.miniGame)));
- $("arcadeCreate").addEventListener("click",async()=>{const name=$("arcadePlayerName").value.trim();localStorage.setItem("ftw-player-name",name);const r=await emit("arcade-create",{name,game:selected,bingoPattern:patternSelect.value});if(!r.success)return $("arcadeFeedback").textContent=r.message;code=r.code;window.currentArcadeRoomCode=code;host=true;controls.hidden=true;$("arcadeFeedback").textContent="Room created. Share the code with your friend.";});
+ $("arcadeCreate").addEventListener("click",async()=>{const name=$("arcadePlayerName").value.trim();localStorage.setItem("ftw-player-name",name);const r=await emit("arcade-create",{name,game:selected,bingoPattern:patternSelect.value,maxPlayers:selected==="ttt"?2:Number(maxPlayersSelect.value)});if(!r.success)return $("arcadeFeedback").textContent=r.message;code=r.code;window.currentArcadeRoomCode=code;host=true;controls.hidden=true;$("arcadeFeedback").textContent="Room created. Share the code with your friend.";});
  $("arcadeJoin").addEventListener("click",async()=>{const name=$("arcadePlayerName").value.trim();localStorage.setItem("ftw-player-name",name);const r=await emit("arcade-join",{name,code:$("arcadeJoinCode").value.trim()});if(!r.success)return $("arcadeFeedback").textContent=r.message;code=r.code;window.currentArcadeRoomCode=code;host=false;controls.hidden=true;$("arcadeFeedback").textContent="Joined room successfully.";});
  $("arcadeStart").addEventListener("click",async()=>{const r=await emit("arcade-start");if(!r.success)status(r.message);});
  $("arcadeRematch").addEventListener("click",async()=>{const r=await emit("arcade-rematch");if(!r.success)status(r.message);});
