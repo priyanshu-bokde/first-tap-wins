@@ -16,14 +16,14 @@ For multiplayer testing, open a second browser window or use another device on t
 ## Game modes
 
 - Quiz Arena: 1–30 players, configurable rounds, categories and difficulty.
-- Bingo Battle: two-player private rooms, individual cards, host number draws and line claims.
+- Bingo Battle: configurable 2–30 player private rooms, individual cards, host number draws and line claims.
 - Reaction Rush: synchronized signal and fastest tap wins.
-- Memory Match: turn-based shared board, pairs and score tracking.
+- Memory Match: turn-based shared board for multiplayer rooms, pairs and score tracking.
 - Quick Math: ten rounds; the first correct answer earns the point.
 - Word Scramble: eight rounds; the first correct word earns the point.
 - Tic-Tac-Toe: server-validated turns and in-room rematches.
 
-All mini-games use private six-digit rooms. A player can create a room, share the code, and invite one opponent. The player profile, XP and achievements are stored locally in that browser; no account or sign-in is required.
+All mini-games use private six-digit rooms. Most games support a host-selected room size of 2–30 players; Tic-Tac-Toe is limited to two. A player can create a room, share the code, and invite friends. The player profile, XP and achievements are stored locally in that browser; no account or sign-in is required.
 
 ## Hosting notes
 
