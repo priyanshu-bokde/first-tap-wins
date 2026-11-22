@@ -9,9 +9,114 @@ const server = http.createServer(app);
 const io = new Server(server);
 const publicFolder = path.join(__dirname, "public");
 const websiteFolder = fs.existsSync(publicFolder) ? publicFolder : __dirname;
+app.disable("x-powered-by");
+app.use((req,res,next)=>{
+  res.setHeader("X-Content-Type-Options","nosniff");
+  res.setHeader("Referrer-Policy","strict-origin-when-cross-origin");
+  res.setHeader("X-Frame-Options","DENY");
+  res.setHeader("Permissions-Policy","camera=(), microphone=(), geolocation=()");
+  next();
+});
+app.get("/api/health",(req,res)=>res.json({ok:true,service:"first-tap-wins",time:new Date().toISOString()}));
 app.use(express.static(websiteFolder));
 
 const rooms = new Map();
+
+/* Phase 7: lightweight persistent account and match store.
+   Set DATA_DIR to a persistent mounted directory on hosting platforms. */
+const crypto = require("crypto");
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
+const STORE_FILE = path.join(DATA_DIR, "store.json");
+const sessions = new Map();
+const authAttempts = new Map();
+let store = { users: [], matches: [] };
+try {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+  if (fs.existsSync(STORE_FILE)) store = Object.assign(store, JSON.parse(fs.readFileSync(STORE_FILE, "utf8")));
+} catch (error) { console.error("Account store could not be loaded:", error.message); }
+let saveQueue = Promise.resolve();
+function saveStore() {
+  saveQueue = saveQueue.then(async () => {
+    await fs.promises.mkdir(DATA_DIR, { recursive: true });
+    const temp = STORE_FILE + ".tmp";
+    await fs.promises.writeFile(temp, JSON.stringify(store, null, 2), { mode: 0o600 });
+    await fs.promises.rename(temp, STORE_FILE);
+  }).catch(error => console.error("Account store save failed:", error.message));
+  return saveQueue;
+}
+function cleanName(value) { return String(value || "").trim().replace(/[<>]/g, "").slice(0, 20); }
+function hashPassword(password, salt) {
+  return new Promise((resolve, reject) => crypto.scrypt(password, salt, 64, (err, key) => err ? reject(err) : resolve(key.toString("hex"))));
+}
+function authUser(req) {
+  const token = String(req.headers.authorization || "").replace(/^Bearer\s+/i, "");
+  const userId = sessions.get(crypto.createHash("sha256").update(token).digest("hex"));
+  return store.users.find(user => user.id === userId) || null;
+}
+function publicUser(user) {
+  return { id:user.id, name:user.name, avatar:user.avatar, xp:user.xp, matches:user.matches, wins:user.wins, badges:user.badges, history:user.history };
+}
+function accountRateLimit(req,res,next) {
+  const key=req.ip, now=Date.now(), recent=(authAttempts.get(key)||[]).filter(t=>now-t<60000);
+  if(recent.length>=12)return res.status(429).json({error:"Too many attempts. Please wait a minute."});
+  recent.push(now);authAttempts.set(key,recent);next();
+}
+app.use(express.json({limit:"12kb"}));
+app.post("/api/register",accountRateLimit,async(req,res)=>{
+  try{
+    const name=cleanName(req.body.name),password=String(req.body.password||"");
+    if(name.length<3||password.length<8||password.length>128)return res.status(400).json({error:"Choose a name of 3–20 characters and a password of at least 8 characters."});
+    if(store.users.some(u=>u.name.toLowerCase()===name.toLowerCase()))return res.status(409).json({error:"That player name is already taken."});
+    const salt=crypto.randomBytes(16).toString("hex"),passwordHash=await hashPassword(password,salt);
+    const user={id:crypto.randomUUID(),name,avatar:"🎮",salt,passwordHash,xp:0,matches:0,wins:0,badges:[],history:[],createdAt:new Date().toISOString()};
+    store.users.push(user);const token=crypto.randomBytes(32).toString("hex");
+    sessions.set(crypto.createHash("sha256").update(token).digest("hex"),user.id);
+    await saveStore();res.status(201).json({token,user:publicUser(user)});
+  }catch(error){res.status(500).json({error:"Could not create the account."});}
+});
+app.post("/api/login",accountRateLimit,async(req,res)=>{
+  try{
+    const name=cleanName(req.body.name),password=String(req.body.password||"");
+    const user=store.users.find(u=>u.name.toLowerCase()===name.toLowerCase());
+    if(!user||!await hashPassword(password,user.salt).then(hash=>crypto.timingSafeEqual(Buffer.from(hash,"hex"),Buffer.from(user.passwordHash,"hex"))).catch(()=>false))return res.status(401).json({error:"Player name or password is incorrect."});
+    const token=crypto.randomBytes(32).toString("hex");
+    sessions.set(crypto.createHash("sha256").update(token).digest("hex"),user.id);
+    res.json({token,user:publicUser(user)});
+  }catch(error){res.status(500).json({error:"Could not sign in."});}
+});
+app.get("/api/me",(req,res)=>{const user=authUser(req);if(!user)return res.status(401).json({error:"Please sign in."});res.json({user:publicUser(user)});});
+app.patch("/api/profile",async(req,res)=>{
+  const user=authUser(req);if(!user)return res.status(401).json({error:"Please sign in."});
+  const name=cleanName(req.body.name),avatar=String(req.body.avatar||"🎮").slice(0,8);
+  if(name.length<3)return res.status(400).json({error:"Player name must be at least 3 characters."});
+  if(store.users.some(u=>u.id!==user.id&&u.name.toLowerCase()===name.toLowerCase()))return res.status(409).json({error:"That player name is already taken."});
+  user.name=name;user.avatar=avatar;await saveStore();res.json({user:publicUser(user)});
+});
+app.get("/api/leaderboard",(req,res)=>{
+  const leaders=[...store.users].sort((a,b)=>b.xp-a.xp||b.wins-a.wins).slice(0,50).map((u,i)=>({rank:i+1,name:u.name,avatar:u.avatar,xp:u.xp,level:Math.floor(u.xp/250)+1,wins:u.wins,matches:u.matches}));
+  res.json({leaderboard:leaders});
+});
+async function recordPersistentMatch(room) {
+  const ranked=publicScores(room);
+  const matchId=crypto.randomUUID();
+  for(let index=0;index<ranked.length;index++){
+    const player=room.players.get(ranked[index].id);
+    if(!player||!player.userId)continue;
+    const user=store.users.find(u=>u.id===player.userId);if(!user)continue;
+    const won=index===0,earned=50+(won?25:0);
+    user.xp+=earned;user.matches++;if(won)user.wins++;
+    if(!user.badges.includes("First Match"))user.badges.push("First Match");
+    if(user.wins&&!user.badges.includes("First Win"))user.badges.push("First Win");
+    if(user.matches>=5&&!user.badges.includes("5 Matches"))user.badges.push("5 Matches");
+    if(user.xp>=500&&!user.badges.includes("500 XP"))user.badges.push("500 XP");
+    user.history.unshift({matchId,date:new Date().toISOString(),result:won?"1st place":"Played",score:ranked[index].score});
+    user.history=user.history.slice(0,20);
+  }
+  store.matches.unshift({id:matchId,roomCode:room.code,category:room.category,difficulty:room.difficulty,rounds:room.rounds,finishedAt:new Date().toISOString(),leaderboard:ranked.map(p=>({name:p.name,score:p.score}))});
+  store.matches=store.matches.slice(0,500);
+  await saveStore();
+}
+
 
 // Original question bank. Every question has four options and one correct answer.
 const QUESTION_BANK = {
@@ -124,8 +229,87 @@ const QUESTION_BANK = {
     { q: "What has a bottom at the top?", options: ["A leg", "A hill", "A bottle", "A shoe"], answer: 2 },
     { q: "What can fill a room but takes up no space?", options: ["Furniture", "Light", "Water", "Air"], answer: 1 },
     { q: "What has branches but no fruit, trunk or leaves?", options: ["A bank", "A river", "A road", "A family"], answer: 0 }
+  ],
+  india: [
+    { q: "What is the capital of Rajasthan?", options: ["Jaipur", "Jodhpur", "Udaipur", "Ajmer"], answer: 0 },
+    { q: "Which Indian state is famous for the dance form Kathakali?", options: ["Punjab", "Kerala", "Gujarat", "Assam"], answer: 1 },
+    { q: "Which river is often called the Ganga's largest tributary?", options: ["Yamuna", "Narmada", "Godavari", "Kaveri"], answer: 0 },
+    { q: "Who was the first President of India?", options: ["S. Radhakrishnan", "Rajendra Prasad", "Zakir Husain", "V. V. Giri"], answer: 1 },
+    { q: "Which Indian city is known as the Pink City?", options: ["Jaisalmer", "Jaipur", "Bhopal", "Lucknow"], answer: 1 },
+    { q: "Which is the largest Indian state by area?", options: ["Madhya Pradesh", "Maharashtra", "Rajasthan", "Uttar Pradesh"], answer: 2 },
+    { q: "The Ajanta caves are located in which state?", options: ["Maharashtra", "Bihar", "Odisha", "Karnataka"], answer: 0 },
+    { q: "Which movement began with the Dandi March in 1930?", options: ["Quit India", "Non-Cooperation", "Civil Disobedience", "Swadeshi"], answer: 2 },
+    { q: "Which schedule of the Indian Constitution lists recognized languages?", options: ["Fifth", "Seventh", "Eighth", "Tenth"], answer: 2 },
+    { q: "Which Indian space mission entered Mars orbit in 2014?", options: ["Chandrayaan-1", "Mangalyaan", "Astrosat", "Aditya-L1"], answer: 1 },
+    { q: "Who was the first woman to become a state chief minister in India?", options: ["Sucheta Kriplani", "Indira Gandhi", "Sarojini Naidu", "Vijaya Raje Scindia"], answer: 0 },
+    { q: "Which article of the Indian Constitution deals with the abolition of untouchability?", options: ["Article 14", "Article 17", "Article 19", "Article 21"], answer: 1 }
+  ],
+  geography: [
+    { q: "Which is the largest continent?", options: ["Africa", "Asia", "Europe", "South America"], answer: 1 },
+    { q: "Which ocean is the smallest?", options: ["Arctic", "Indian", "Atlantic", "Southern"], answer: 0 },
+    { q: "The Andes mountains are mainly in which continent?", options: ["Asia", "Europe", "South America", "Africa"], answer: 2 },
+    { q: "Which country has the city of Istanbul?", options: ["Greece", "Turkey", "Bulgaria", "Egypt"], answer: 1 },
+    { q: "Which river flows through Egypt?", options: ["Amazon", "Danube", "Nile", "Mekong"], answer: 2 },
+    { q: "Which is the world's largest island, excluding continental landmasses?", options: ["Madagascar", "Borneo", "Greenland", "New Guinea"], answer: 2 },
+    { q: "The Equator passes through which of these countries?", options: ["India", "Ecuador", "Japan", "Italy"], answer: 1 },
+    { q: "Which strait separates Asia and North America?", options: ["Gibraltar", "Bering", "Malacca", "Hormuz"], answer: 1 },
+    { q: "Which country is completely surrounded by South Africa?", options: ["Eswatini", "Lesotho", "Botswana", "Namibia"], answer: 1 },
+    { q: "The Atacama Desert is primarily located in which country?", options: ["Chile", "Peru", "Mexico", "Argentina"], answer: 0 },
+    { q: "Which sea has the lowest exposed land elevation on Earth at its shore?", options: ["Black Sea", "Dead Sea", "Caspian Sea", "Red Sea"], answer: 1 },
+    { q: "Which mountain range traditionally marks part of the boundary between Europe and Asia?", options: ["Alps", "Andes", "Urals", "Rockies"], answer: 2 }
+  ],
+  history: [
+    { q: "Who was the first emperor of the Maurya Empire?", options: ["Ashoka", "Bindusara", "Chandragupta Maurya", "Harsha"], answer: 2 },
+    { q: "The ancient Olympic Games began in which country?", options: ["Italy", "Greece", "Egypt", "Persia"], answer: 1 },
+    { q: "Who was known as the Iron Man of India?", options: ["Jawaharlal Nehru", "Sardar Vallabhbhai Patel", "Subhas Chandra Bose", "B. R. Ambedkar"], answer: 1 },
+    { q: "In which year did India become independent?", options: ["1945", "1946", "1947", "1950"], answer: 2 },
+    { q: "Which Mughal emperor commissioned the Taj Mahal?", options: ["Akbar", "Babur", "Shah Jahan", "Aurangzeb"], answer: 2 },
+    { q: "The Renaissance began in which European country?", options: ["France", "Italy", "Germany", "Spain"], answer: 1 },
+    { q: "Who led the Salt March in 1930?", options: ["Mahatma Gandhi", "Bhagat Singh", "Bal Gangadhar Tilak", "Lala Lajpat Rai"], answer: 0 },
+    { q: "Which civilization developed cuneiform writing?", options: ["Roman", "Sumerian", "Mayan", "Inca"], answer: 1 },
+    { q: "The Treaty of Versailles was signed in which year?", options: ["1914", "1918", "1919", "1925"], answer: 2 },
+    { q: "Who was the last ruler of the Ptolemaic Kingdom of Egypt?", options: ["Nefertiti", "Cleopatra VII", "Hatshepsut", "Ankhesenamun"], answer: 1 },
+    { q: "Which event is generally considered the immediate trigger of World War I?", options: ["Invasion of Poland", "Assassination of Archduke Franz Ferdinand", "Russian Revolution", "Treaty of Versailles"], answer: 1 },
+    { q: "The Meiji Restoration began in which year?", options: ["1603", "1750", "1868", "1912"], answer: 2 }
+  ],
+  technology: [
+    { q: "What does CPU stand for?", options: ["Central Processing Unit", "Computer Power Utility", "Core Program Unit", "Central Program User"], answer: 0 },
+    { q: "Which language is primarily used to structure web pages?", options: ["HTML", "SQL", "C++", "Python"], answer: 0 },
+    { q: "What does URL stand for?", options: ["Universal Record Link", "Uniform Resource Locator", "Unified Reference Line", "User Route Link"], answer: 1 },
+    { q: "Which device is used to connect different networks?", options: ["Keyboard", "Router", "Monitor", "Printer"], answer: 1 },
+    { q: "What does RAM mainly provide to a computer?", options: ["Long-term storage", "Temporary working memory", "Internet access", "Power backup"], answer: 1 },
+    { q: "Which company created the Android operating system originally?", options: ["Apple", "Google", "Microsoft", "IBM"], answer: 1 },
+    { q: "Which protocol is commonly used to load secure websites?", options: ["FTP", "HTTP", "HTTPS", "SMTP"], answer: 2 },
+    { q: "What does CSS control in a web page?", options: ["Structure", "Styling and layout", "Database storage", "Server hosting"], answer: 1 },
+    { q: "What is the main purpose of a database index?", options: ["Encrypt every row", "Speed up data lookup", "Replace backups", "Create user accounts"], answer: 1 },
+    { q: "Which data structure follows the last-in, first-out principle?", options: ["Queue", "Stack", "Tree", "Graph"], answer: 1 },
+    { q: "What does API commonly stand for?", options: ["Application Programming Interface", "Applied Program Internet", "Automated Process Input", "Application Protocol Index"], answer: 0 },
+    { q: "Which number system is used internally by digital computers?", options: ["Decimal", "Binary", "Roman", "Hexadecimal only"], answer: 1 }
+  ],
+  sports: [
+    { q: "How many players from one cricket team are on the field during play?", options: ["9", "10", "11", "12"], answer: 2 },
+    { q: "Which sport uses a shuttlecock?", options: ["Tennis", "Badminton", "Squash", "Table tennis"], answer: 1 },
+    { q: "How many rings are on the Olympic symbol?", options: ["4", "5", "6", "7"], answer: 1 },
+    { q: "In football, what is the usual term for scoring three goals by one player in a match?", options: ["Triple", "Hat-trick", "Treble save", "Clean sheet"], answer: 1 },
+    { q: "Which country won the first men's Cricket World Cup in 1975?", options: ["India", "Australia", "West Indies", "England"], answer: 2 },
+    { q: "How many points is a free throw worth in basketball?", options: ["1", "2", "3", "4"], answer: 0 },
+    { q: "The term 'love' is used for a score of zero in which sport?", options: ["Hockey", "Tennis", "Golf", "Boxing"], answer: 1 },
+    { q: "Which Indian athlete is known as the Flying Sikh?", options: ["Neeraj Chopra", "Milkha Singh", "P. T. Usha", "Dhanraj Pillay"], answer: 1 },
+    { q: "In chess, which piece moves in an L-shape?", options: ["Bishop", "Knight", "Rook", "Queen"], answer: 1 },
+    { q: "Which country hosted the first modern Olympic Games in 1896?", options: ["France", "Greece", "United Kingdom", "Italy"], answer: 1 },
+    { q: "In Formula One, what flag signals the end of a race?", options: ["Red", "Yellow", "Chequered", "Blue"], answer: 2 },
+    { q: "Which athletics event combines ten track-and-field disciplines?", options: ["Heptathlon", "Decathlon", "Pentathlon", "Triathlon"], answer: 1 }
   ]
 };
+
+// Give every category a balanced easy / medium / hard question pool.
+Object.values(QUESTION_BANK).forEach(questions => {
+  const easyEnd = Math.ceil(questions.length / 3);
+  const mediumEnd = Math.ceil((questions.length * 2) / 3);
+  questions.forEach((question, index) => {
+    question.difficulty = index < easyEnd ? "easy" : index < mediumEnd ? "medium" : "hard";
+  });
+});
 
 function shuffle(items) {
   const copy = [...items];
@@ -180,7 +364,7 @@ function leaveRoom(socket, roomCode) {
     nextHost.isHost = true;
     io.to(roomCode).emit("room-notice", "The host left. A new host has been selected.");
   }
-  if (room.inGame && room.players.size < 2) {
+  if (room.inGame && room.players.size < 1) {
     clearGameTimers(room);
     room.inGame = false;
     io.to(roomCode).emit("game-paused", "A player left. At least two players are needed to continue.");
@@ -215,25 +399,37 @@ function finishGame(roomCode) {
   room.inGame = false;
   room.phase = "finished";
   io.to(roomCode).emit("game-over", { leaderboard: publicScores(room), totalRounds: room.rounds });
+  recordPersistentMatch(room).catch(error => console.error("Match history save failed:", error.message));
 }
 
 io.on("connection", socket => {
   console.log("Player connected:", socket.id);
+  socket.on("account-auth", (token, callback = () => {}) => {
+    const raw = String(token || "");
+    if (!/^[a-f0-9]{64}$/i.test(raw)) return callback({ success: false, message: "Invalid session." });
+    const userId = sessions.get(crypto.createHash("sha256").update(raw).digest("hex"));
+    const user = store.users.find(entry => entry.id === userId);
+    if (!user) return callback({ success: false, message: "Session expired. Please sign in again." });
+    socket.userId = user.id;
+    callback({ success: true, user: publicUser(user) });
+  });
+
 
   socket.on("create-room", (data, callback = () => {}) => {
-    const name = String(data?.name || "").trim().slice(0, 20);
+    const name = cleanName(data?.name);
     const roomName = String(data?.roomName || "Quiz Battle").trim().slice(0, 32);
     const maxPlayers = Number(data?.maxPlayers);
     const rounds = Number(data?.rounds);
     const category = String(data?.category || "mixed");
-    if (!name || !Number.isInteger(maxPlayers) || maxPlayers < 2 || maxPlayers > 15)
+    if (!name || !Number.isInteger(maxPlayers) || maxPlayers < 1 || maxPlayers > 30)
       return callback({ success: false, message: "Invalid room settings." });
     const code = generateRoomCode();
     rooms.set(code, {
       hostId: socket.id, maxPlayers, roomName,
       rounds: Number.isInteger(rounds) ? Math.min(20, Math.max(1, rounds)) : 10,
       category: (category === "mixed" || QUESTION_BANK[category]) ? category : "mixed",
-      players: new Map([[socket.id, { id: socket.id, name, isHost: true, score: 0 }]]),
+      difficulty: ["mixed", "easy", "medium", "hard"].includes(data?.difficulty) ? data.difficulty : "mixed",
+      players: new Map([[socket.id, { id: socket.id, name, isHost: true, score: 0, userId: socket.userId || null }]]),
       gameStarting: false, countdownTimer: null, questionTimer: null, answerTimer: null, nextTimer: null,
       inGame: false, phase: "lobby", roundIndex: 0, questions: [], currentQuestion: null, buzzedBy: null
     });
@@ -245,16 +441,16 @@ io.on("connection", socket => {
 
   socket.on("join-room", (data, callback = () => {}) => {
     const code = String(data?.code || "").trim();
-    const name = String(data?.name || "").trim().slice(0, 20);
+    const name = cleanName(data?.name);
     const room = rooms.get(code);
     if (!room || !name) return callback({ success: false, message: "Room not found or invalid name." });
     if (room.inGame || room.gameStarting) return callback({ success: false, message: "This game has already started." });
     if (room.players.size >= room.maxPlayers) return callback({ success: false, message: "Room is full." });
     if ([...room.players.values()].some(p => p.name.toLowerCase() === name.toLowerCase()))
       return callback({ success: false, message: "Username already taken." });
-    room.players.set(socket.id, { id: socket.id, name, isHost: false, score: 0 });
+    room.players.set(socket.id, { id: socket.id, name, isHost: false, score: 0, userId: socket.userId || null });
     socket.join(code);
-    callback({ success: true, code, settings: { roomName: room.roomName, rounds: room.rounds, category: room.category } });
+    callback({ success: true, code, settings: { roomName: room.roomName, rounds: room.rounds, category: room.category, difficulty: room.difficulty } });
     sendPlayers(code);
     console.log(name, "joined room:", code);
   });
@@ -264,7 +460,7 @@ io.on("connection", socket => {
     if (!entry) return callback({ success: false, message: "You are not in a room." });
     const [code, room] = entry;
     if (room.hostId !== socket.id) return callback({ success: false, message: "Only the host can start the game." });
-    if (room.players.size < 2) return callback({ success: false, message: "At least 2 players are needed." });
+    if (room.players.size < 1) return callback({ success: false, message: "At least 1 player is needed." });
     if (room.gameStarting || room.inGame) return callback({ success: false, message: "The game is already starting or running." });
     room.gameStarting = true;
     const duration = 10;
@@ -279,11 +475,14 @@ io.on("connection", socket => {
       active.inGame = true;
       active.phase = "buzz";
       const category = active.category;
-      const pool = category === "mixed" ? Object.values(QUESTION_BANK).flat() : (QUESTION_BANK[category] || QUESTION_BANK.gk);
+      const categoryPool = category === "mixed" ? Object.values(QUESTION_BANK).flat() : (QUESTION_BANK[category] || QUESTION_BANK.gk);
+      const selectedPool = active.difficulty === "mixed"
+        ? categoryPool
+        : categoryPool.filter(question => question.difficulty === active.difficulty);
+      const pool = selectedPool.length ? selectedPool : categoryPool;
       active.questions = shuffle(pool).slice(0, active.rounds);
-      if (active.questions.length < active.rounds) {
-        const extra = shuffle(pool).slice(0, active.rounds - active.questions.length);
-        active.questions.push(...extra);
+      while (active.questions.length < active.rounds) {
+        active.questions.push(...shuffle(pool).slice(0, active.rounds - active.questions.length));
       }
       active.roundIndex = 0;
       active.players.forEach(p => p.score = 0);
@@ -353,6 +552,145 @@ io.on("connection", socket => {
     for (const [code, room] of rooms) if (room.players.has(socket.id)) leaveRoom(socket, code);
   });
 });
+
+
+/* Unified two-player mini-game rooms. */
+const arcadeRooms = new Map();
+const arcadeWins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+const arcadeWords = ["PLANET","GARDEN","PUZZLE","BRIGHT","ORANGE","SILVER","PYTHON","GUITAR","GALAXY","POCKET"];
+function arcadeCode(){let code;do{code=String(Math.floor(100000+Math.random()*900000));}while(arcadeRooms.has(code));return code;}
+function bingoCard(){const cols=[];for(let c=0;c<5;c++){const start=c*15+1;cols.push(shuffle(Array.from({length:15},(_,i)=>start+i)).slice(0,5));}const card=Array.from({length:5},(_,r)=>Array.from({length:5},(_,c)=>cols[c][r]));card[2][2]="FREE";return card;}
+function arcadeQuestion(){const a=2+Math.floor(Math.random()*18),b=2+Math.floor(Math.random()*12),op=Math.random()<.5?"+":"×";return {text: a+" "+op+" "+b+" = ?",answer:op==="+"?a+b:a*b};}
+function arcadeWord(){const word=arcadeWords[Math.floor(Math.random()*arcadeWords.length)];let scrambled=shuffle(word.split("")).join("");if(scrambled===word)scrambled=word.slice(1)+word[0];return {word,scrambled};}
+function initArcadeGame(room){
+ room.started=true;room.status="Game in progress";
+ if(room.game==="ttt"){room.board=Array(9).fill("");room.turn=room.hostId;room.winner=null;}
+ if(room.game==="bingo"){room.drawn=[];room.lastNumber=null;for(const p of room.players.values()){p.card=bingoCard();p.marks=[];}}
+ if(room.game==="reaction"){room.phase="waiting";room.winner=null;room.reactionStartedAt=null;room.scores={};room.status="Wait for the signal…";room.reactionTimer=setTimeout(()=>{if(!room.started||room.phase!=="waiting")return;room.phase="go";room.reactionStartedAt=Date.now();room.status="TAP NOW!";arcadeBroadcast(room);},1200+Math.floor(Math.random()*2800));}
+ if(room.game==="memory"){const faces=["★","●","◆","▲","♥","☀","♣","✦"];room.deck=shuffle(faces.concat(faces));room.matched=[];room.flipped=[];room.turnIndex=0;room.pairScores={};}
+ if(room.game==="math"){room.round=1;room.totalRounds=10;room.question=arcadeQuestion();room.scores={};}
+ if(room.game==="word"){room.round=1;room.totalRounds=8;room.word=arcadeWord();room.scores={};}
+ for(const p of room.players.values()){p.score=0;}
+}
+function arcadePublic(room,viewerId){
+ const state={};
+ for(const key of ["phase","board","turn","winner","drawn","lastNumber","deck","matched","flipped","turnIndex","round","totalRounds","question","scores","pairScores","reactionStartedAt","bingoPattern"]){
+  if(key in room)state[key]=room[key];
+ if(state.deck)state.deck=state.deck.map((face,i)=>(room.matched||[]).includes(i)||(room.flipped||[]).includes(i)?face:null);
+ if(state.question)state.question={text:state.question.text};
+ }
+ if(room.word)state.word={scrambled:room.word.scrambled};
+ return {code:room.code,game:room.game,hostId:room.hostId,maxPlayers:room.maxPlayers||2,players:[...room.players.values()].map(p=>({id:p.id,name:p.name,card:p.id===viewerId?p.card||null:null,marks:p.id===viewerId?p.marks||[]:[],score:p.score||0})),started:room.started,turn:room.turn,board:room.board||Array(9).fill(""),drawn:room.drawn||[],lastNumber:room.lastNumber||null,status:room.status||"Waiting for players",state};
+}
+function arcadeBroadcast(room){for(const player of room.players.values())io.to(player.id).emit("arcade-state",arcadePublic(room,player.id));}
+function arcadeFinish(room,message,winnerId=null){room.started=false;room.winner=winnerId;room.status=message;if(room.reactionTimer){clearTimeout(room.reactionTimer);room.reactionTimer=null;}arcadeBroadcast(room);}
+function removeArcadePlayer(socket,room){
+ room.players.delete(socket.id);socket.leave("arcade:"+room.code);
+ if(!room.players.size){if(room.reactionTimer)clearTimeout(room.reactionTimer);arcadeRooms.delete(room.code);return;}
+ room.started=false;room.hostId=room.players.keys().next().value;room.status="Opponent left. The remaining player is now host.";if(room.reactionTimer)clearTimeout(room.reactionTimer);arcadeBroadcast(room);
+}
+io.on("connection",socket=>{
+ socket.on("arcade-create",({name,game,bingoPattern,maxPlayers},cb=()=>{})=>{
+  name=String(name||"").trim().replace(/[<>]/g,"").slice(0,20);game=String(game||"").toLowerCase();
+  if(name.length<1||!["bingo","ttt","reaction","memory","math","word"].includes(game))return cb({success:false,message:"Enter a player name and choose a mini-game."});
+  maxPlayers=game==="ttt"?2:Number(maxPlayers);
+  if(!Number.isInteger(maxPlayers)||maxPlayers<2||maxPlayers>30)return cb({success:false,message:"Choose between 2 and 30 players."});
+  const code=arcadeCode(),room={code,game,maxPlayers,bingoPattern:["line","corners","full"].includes(bingoPattern)?bingoPattern:"line",hostId:socket.id,players:new Map([[socket.id,{id:socket.id,name,score:0,card:game==="bingo"?bingoCard():null,marks:[]}]]),started:false,status:"Waiting for players"};
+  arcadeRooms.set(code,room);socket.join("arcade:"+code);cb({success:true,code});arcadeBroadcast(room);
+ });
+ socket.on("arcade-join",({name,code},cb=()=>{})=>{
+  name=String(name||"").trim().replace(/[<>]/g,"").slice(0,20);code=String(code||"").trim();const room=arcadeRooms.get(code);
+  if(!room||!name)return cb({success:false,message:"Room not found. Check the six-digit code and name."});
+  if(room.started||room.players.size>=room.maxPlayers)return cb({success:false,message:room.started?"This room has already started.":"This room is full."});
+  if([...room.players.values()].some(p=>p.name.toLowerCase()===name.toLowerCase()))return cb({success:false,message:"That name is already in this room."});
+  room.players.set(socket.id,{id:socket.id,name,score:0,card:room.game==="bingo"?bingoCard():null,marks:[]});socket.join("arcade:"+code);room.status=room.players.size>=2?"Players are ready. Host can start.":"Waiting for at least one more player.";cb({success:true,code});arcadeBroadcast(room);
+ });
+ socket.on("arcade-start",(_payload={},cb=()=>{})=>{
+  const room=[...arcadeRooms.values()].find(r=>r.players.has(socket.id));
+  if(!room||room.hostId!==socket.id)return cb?.({success:false,message:"Only the host can start."});
+  if(room.players.size<2)return cb?.({success:false,message:"At least two players are required to start."});
+  if(room.started)return cb?.({success:false,message:"The game is already running."});
+  initArcadeGame(room);arcadeBroadcast(room);cb?.({success:true});
+ });
+ socket.on("arcade-ttt-move",({index},cb=()=>{})=>{
+  const room=[...arcadeRooms.values()].find(r=>r.players.has(socket.id));
+  if(!room||room.game!=="ttt"||!room.started)return cb({success:false,message:"Tic-Tac-Toe is not active."});
+  index=Number(index);if(room.turn!==socket.id||!Number.isInteger(index)||index<0||index>8||room.board[index])return cb({success:false,message:"That move is not available."});
+  const mark=socket.id===room.hostId?"X":"O";room.board[index]=mark;
+  const won=arcadeWins.some(line=>line.every(i=>room.board[i]===mark));
+  if(won){room.players.get(socket.id).score++;room.started=false;room.winner=socket.id;room.status=room.players.get(socket.id).name+" wins! Rematch is ready.";}
+  else if(room.board.every(Boolean)){room.started=false;room.winner=null;room.status="It's a draw! Rematch is ready.";}
+  else{room.turn=[...room.players.keys()].find(id=>id!==socket.id);room.status=room.players.get(room.turn).name+"'s turn";}
+  arcadeBroadcast(room);cb({success:true});
+ });
+ socket.on("arcade-bingo-draw",(_payload={},cb=()=>{})=>{
+  const room=[...arcadeRooms.values()].find(r=>r.players.has(socket.id));
+  if(!room||room.game!=="bingo"||!room.started||room.hostId!==socket.id)return cb?.({success:false,message:"Only the host can draw a number during Bingo."});
+  const remaining=Array.from({length:75},(_,i)=>i+1).filter(n=>!room.drawn.includes(n));
+  if(!remaining.length)return cb?.({success:false,message:"All numbers have been drawn."});
+  room.lastNumber=remaining[Math.floor(Math.random()*remaining.length)];room.drawn.push(room.lastNumber);room.status="Number "+room.lastNumber+" called";arcadeBroadcast(room);cb?.({success:true});
+ });
+ socket.on("arcade-bingo-mark",({number},cb=()=>{})=>{
+  const room=[...arcadeRooms.values()].find(r=>r.players.has(socket.id));
+  if(!room||room.game!=="bingo"||!room.started)return cb({success:false,message:"Bingo is not active."});
+  const p=room.players.get(socket.id);number=Number(number);
+  if(!room.drawn.includes(number)||!p.card.flat().includes(number))return cb({success:false,message:"That number has not been called or is not on your card."});
+  if(!p.marks.includes(number))p.marks.push(number);arcadeBroadcast(room);cb({success:true});
+ });
+ socket.on("arcade-bingo-claim",(_payload={},cb=()=>{})=>{
+  const room=[...arcadeRooms.values()].find(r=>r.players.has(socket.id));
+  if(!room||room.game!=="bingo"||!room.started)return cb?.({success:false,message:"Bingo is not active."});
+  const p=room.players.get(socket.id),marked=(r,c)=>p.card[r][c]==="FREE"||p.marks.includes(p.card[r][c]);
+  const lines=room.bingoPattern==="corners"?[[[0,0],[0,4],[4,0],[4,4]]]:room.bingoPattern==="full"?[Array.from({length:25},(_,i)=>[Math.floor(i/5),i%5])]:[...[0,1,2,3,4].map(r=>[0,1,2,3,4].map(c=>[r,c])),...[0,1,2,3,4].map(c=>[0,1,2,3,4].map(r=>[r,c])),[0,1,2,3,4].map(i=>[i,i]),[0,1,2,3,4].map(i=>[i,4-i])];
+  if(!lines.some(line=>line.every(([r,c])=>marked(r,c))))return cb?.({success:false,message:room.bingoPattern==="corners"?"Mark all four corners first.":room.bingoPattern==="full"?"Complete the full card to win!":"No complete line yet. Keep playing!"});
+  arcadeFinish(room,p.name+" called BINGO and wins!",socket.id);cb?.({success:true});
+ });
+ socket.on("arcade-action",(payload={},cb=()=>{})=>{
+  const room=[...arcadeRooms.values()].find(r=>r.players.has(socket.id));
+  if(!room||!room.started)return cb({success:false,message:"The game is not active."});
+  const player=room.players.get(socket.id),action=String(payload.action||"");
+  if(room.game==="reaction"){
+   if(action==="tap"){
+    if(room.phase==="waiting"){room.phase="early";room.status=player.name+" tapped too early. Rematch to try again.";if(room.reactionTimer)clearTimeout(room.reactionTimer);room.started=false;arcadeBroadcast(room);return cb({success:true});}
+    if(room.phase!=="go")return cb({success:false,message:"Wait for the signal."});
+    const elapsed=Date.now()-room.reactionStartedAt;player.score=elapsed;arcadeFinish(room,player.name+" wins with "+elapsed+" ms!",socket.id);return cb({success:true,elapsed});
+   }
+  }
+  if(room.game==="memory"&&action==="flip"){
+   const index=Number(payload.index);if(!Number.isInteger(index)||index<0||index>=16||room.turnIndex!==[...room.players.keys()].indexOf(socket.id)||room.matched.includes(index)||room.flipped.includes(index))return cb({success:false,message:"That card cannot be flipped now."});
+   room.flipped.push(index);
+   if(room.flipped.length===2){
+    const [a,b]=room.flipped;
+    if(room.deck[a]===room.deck[b]){room.matched.push(a,b);room.pairScores[socket.id]=(room.pairScores[socket.id]||0)+1;player.score=room.pairScores[socket.id];room.flipped=[];if(room.matched.length===16){const winner=[...room.players.keys()].sort((x,y)=>(room.pairScores[y]||0)-(room.pairScores[x]||0))[0];arcadeFinish(room,room.players.get(winner).name+" wins Memory Match!",winner);}else room.status="Pair found! Same player plays again.";}
+    else{room.status="No match. Turn changes.";arcadeBroadcast(room);setTimeout(()=>{if(!room.started)return;room.flipped=[];room.turnIndex=(room.turnIndex+1)%room.players.size;room.status=room.players.get([...room.players.keys()][room.turnIndex]).name+"'s turn";arcadeBroadcast(room);},900);return cb({success:true});}
+   }
+   arcadeBroadcast(room);return cb({success:true});
+  }
+  if(room.game==="math"&&action==="answer"){
+   if(String(payload.answer??"").trim()==="")return cb({success:false,message:"Enter an answer."});
+   if(Number(payload.answer)!==room.question.answer)return cb({success:false,message:"Not quite. Try again."});
+   player.score++;if(room.round>=room.totalRounds){const winner=[...room.players.values()].sort((a,b)=>b.score-a.score)[0];arcadeFinish(room,winner.name+" wins Quick Math!",winner.id);}
+   else{room.round++;room.question=arcadeQuestion();room.status=player.name+" scored! Next question is ready.";arcadeBroadcast(room);}return cb({success:true});
+  }
+  if(room.game==="word"&&action==="answer"){
+   if(String(payload.answer||"").trim().toUpperCase()!==room.word.word)return cb({success:false,message:"Not quite. Try again."});
+   player.score++;if(room.round>=room.totalRounds){const winner=[...room.players.values()].sort((a,b)=>b.score-a.score)[0];arcadeFinish(room,winner.name+" wins Word Scramble!",winner.id);}
+   else{room.round++;room.word=arcadeWord();room.status=player.name+" solved it! Next word.";arcadeBroadcast(room);}return cb({success:true});
+  }
+  cb({success:false,message:"That action is not supported for this game."});
+ });
+ socket.on("arcade-rematch",(_payload={},cb=()=>{})=>{
+  const room=[...arcadeRooms.values()].find(r=>r.players.has(socket.id));
+  if(!room)return cb?.({success:false,message:"Room not found."});
+  if(room.players.size<2)return cb?.({success:false,message:"At least two players must be in the room for a rematch."});
+  if(room.reactionTimer)clearTimeout(room.reactionTimer);initArcadeGame(room);arcadeBroadcast(room);cb?.({success:true});
+ });
+ socket.on("arcade-leave",(_payload={},cb=()=>{})=>{
+  const room=[...arcadeRooms.values()].find(r=>r.players.has(socket.id));if(room)removeArcadePlayer(socket,room);cb?.({success:true});
+ });
+ socket.on("disconnect",()=>{for(const room of arcadeRooms.values())if(room.players.has(socket.id))removeArcadePlayer(socket,room);});
+});
+
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`First Tap Wins running at http://localhost:${PORT}`));

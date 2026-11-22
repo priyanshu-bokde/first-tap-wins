@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>First Tap Wins | Play Fast</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="responsive.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -13,20 +14,36 @@
     <div class="background-glow glow-one"></div>
     <div class="background-glow glow-two"></div>
 
-    <header class="navbar">
-        <a href="#" class="logo">
-            <span class="logo-icon">⚡</span>
-            FIRST<span>TAP</span>WINS
-        </a>
-
-        <nav>
-            <a href="#how">How to Play</a>
-            <a href="#features">Features</a>
+    <aside class="sidebar" aria-label="Main navigation">
+        <a href="#home" class="logo"><span class="logo-icon">⚡</span><span>FIRST<span class="logo-accent">TAP</span>WINS</span></a>
+        <p class="sidebar-label">MENU</p>
+        <nav class="sidebar-nav">
+            <a class="sidebar-link active" href="#home"><span class="nav-icon">⌂</span> Overview</a>
+            <a class="sidebar-link" href="#play"><span class="nav-icon">＋</span> Play a game</a>
+            <a class="sidebar-link" href="#how"><span class="nav-icon">ⓘ</span> How to play</a>
+            <a class="sidebar-link" href="#game-hub"><span class="nav-icon">▦</span> Game hub</a>
+            <a class="sidebar-link" href="#mini-games"><span class="nav-icon">🎮</span> Mini games</a>
         </nav>
+        <div class="sidebar-bottom"><span class="sidebar-online-dot"></span><span>Ready for a challenge?</span></div>
+    </aside>
 
-        <a href="#play" class="nav-button">Play Now ↗</a>
-    </header>
+    <div class="dashboard-shell" id="home">
+    <header class="dashboard-topbar"><div><span class="topbar-eyebrow">YOUR GAME SPACE</span><h2>Welcome to First Tap Wins</h2></div><a class="topbar-play" href="#play">Start playing <span>↗</span></a></header>
+<section class="player-profile" id="playerProfile" aria-labelledby="profileTitle">
+ <div class="profile-main">
+  <div class="profile-avatar" id="profileAvatar" aria-hidden="true">🎮</div>
+  <div class="profile-identity"><span class="section-kicker">PLAYER PROFILE</span><h2 id="profileTitle">Your player card</h2><p id="profileName">Guest Player</p><button type="button" class="profile-edit" id="profileEdit">EDIT PROFILE</button></div>
+ </div>
+ <div class="profile-progress">
+  <div class="profile-stats"><div><strong id="profileLevel">1</strong><span>LEVEL</span></div><div><strong id="profileXp">0</strong><span>TOTAL XP</span></div><div><strong id="profileMatches">0</strong><span>MATCHES</span></div><div><strong id="profileWins">0</strong><span>WINS</span></div></div>
+  <div class="xp-track" role="progressbar" aria-label="Progress to next level" aria-valuemin="0" aria-valuemax="250" aria-valuenow="0"><span id="profileXpBar"></span></div>
+  <p id="profileNextLevel">250 XP to Level 2</p>
+ </div>
+ <div class="profile-achievements"><strong>Achievements</strong><div id="profileBadges"><span class="achievement-locked">Complete your first quiz to unlock a badge</span></div></div>
+ <div class="profile-history"><strong>Recent matches</strong><ol id="profileHistory"><li>No matches recorded yet.</li></ol></div>
+ <p class="profile-storage-note">Your player card, achievements and progress are saved on this device. No account or sign-in required.</p>
 
+</section>
     <main class="hero">
 
         <div class="hero-content">
@@ -117,6 +134,67 @@
 
     </main>
 
+
+<section class="game-hub-section" id="game-hub" aria-labelledby="gameHubTitle">
+  <div class="game-hub-heading">
+    <div><span class="section-kicker">CHOOSE YOUR MODE</span><h2 id="gameHubTitle">Your game hub</h2><p>Pick a challenge and jump straight into the action.</p></div>
+    <span class="game-hub-note">ONE PLACE · MORE WAYS TO PLAY</span>
+  </div>
+  <div class="game-hub-grid">
+    <article class="game-hub-card quiz-hub-card">
+      <div class="game-hub-art quiz-art"><span>⚡</span><small>FASTEST FINGER</small></div>
+      <div class="game-hub-copy"><span class="game-hub-category">MULTIPLAYER QUIZ</span><h3>Quiz Arena</h3><p>Host a room, invite friends and compete to buzz in first.</p><a href="#play" class="game-hub-link">CREATE OR JOIN ROOM <span>→</span></a></div>
+    </article>
+    <article class="game-hub-card mini-hub-card">
+      <div class="game-hub-art mini-art"><span>🎮</span><small>QUICK CHALLENGES</small></div>
+      <div class="game-hub-copy"><span class="game-hub-category">MULTIPLAYER MINI-GAMES</span><h3>Mini Games Arcade</h3><p>Choose from six private-room games and challenge a friend with a room code.</p><a href="#mini-games" class="game-hub-link">EXPLORE MINI GAMES <span>→</span></a></div>
+    </article>
+    <article class="game-hub-card coming-hub-card">
+      <div class="game-hub-art coming-art"><span>🏆</span><small>IN DEVELOPMENT</small></div>
+      <div class="game-hub-copy"><span class="game-hub-category">DAILY CHALLENGES</span><h3>Challenge Zone</h3><p>Fresh daily tasks and friendly competitions are planned for a future update.</p><span class="game-hub-coming">COMING IN A FUTURE UPDATE</span></div>
+    </article>
+  </div>
+</section>
+
+    <section class="quick-actions" aria-labelledby="quickActionsTitle">
+        <div class="quick-actions-heading">
+            <div>
+                <span class="section-kicker">JUMP RIGHT IN</span>
+                <h2 id="quickActionsTitle">Ready for your next match?</h2>
+                <p>Start a private room or join a friend's battle in seconds.</p>
+            </div>
+            <span class="quick-live-pill"><span></span> ROOM-BASED PLAY</span>
+        </div>
+        <div class="quick-actions-grid">
+            <article class="quick-action-card quick-action-primary">
+                <span class="quick-action-icon">＋</span>
+                <div><h3>Create a room</h3><p>Set the rules, invite your friends and host the quiz.</p></div>
+                <button type="button" onclick="showMessage('Create Room')">CREATE ROOM <span>→</span></button>
+            </article>
+            <article class="quick-action-card">
+                <span class="quick-action-icon">↗</span>
+                <div><h3>Join a room</h3><p>Have a six-digit code? Enter it and join the competition.</p></div>
+                <button type="button" onclick="showMessage('Join Room')">JOIN WITH CODE <span>→</span></button>
+            </article>
+            <article class="quick-action-card">
+                <span class="quick-action-icon">ⓘ</span>
+                <div><h3>Learn the rules</h3><p>See how the buzzer, answers and points work.</p></div>
+                <a href="#how">HOW TO PLAY <span>→</span></a>
+            </article>
+        </div>
+    </section>
+
+<section class="mini-games-section" id="mini-games" aria-labelledby="miniGamesTitle">
+ <div class="mini-games-heading"><div><span class="section-kicker">MORE WAYS TO PLAY</span><h2 id="miniGamesTitle">Multiplayer mini-game arcade</h2><p>Choose your player limit, create a private room and invite friends with a six-digit code.</p></div><span class="mini-games-count">6 MULTIPLAYER GAMES</span></div>
+ <div class="mini-games-grid mini-games-grid-clean">
+  <article class="mini-game-card"><div class="mini-game-card-top"><span class="mini-game-icon">🎱</span><span class="mini-game-tag available">2–30 PLAYERS</span></div><h3>Bingo Battle</h3><p>Call numbers, mark your card and complete a line before your opponent.</p><button class="mini-game-button mini-open-game" data-mini-game="bingo">PLAY BINGO →</button></article>
+  <article class="mini-game-card"><div class="mini-game-card-top"><span class="mini-game-icon">⚡</span><span class="mini-game-tag available">2–30 PLAYERS</span></div><h3>Reaction Rush</h3><p>Wait for the signal and be the first player to tap.</p><button class="mini-game-button mini-open-game" data-mini-game="reaction">PLAY REACTION RUSH →</button></article>
+  <article class="mini-game-card"><div class="mini-game-card-top"><span class="mini-game-icon">🧠</span><span class="mini-game-tag available">2–30 PLAYERS</span></div><h3>Memory Match</h3><p>Take turns revealing cards, find pairs and finish with the most matches.</p><button class="mini-game-button mini-open-game" data-mini-game="memory">PLAY MEMORY MATCH →</button></article>
+  <article class="mini-game-card"><div class="mini-game-card-top"><span class="mini-game-icon">➗</span><span class="mini-game-tag available">2–30 PLAYERS</span></div><h3>Quick Math</h3><p>Solve ten quick calculations. First correct answer earns the point.</p><button class="mini-game-button mini-open-game" data-mini-game="math">PLAY QUICK MATH →</button></article>
+  <article class="mini-game-card"><div class="mini-game-card-top"><span class="mini-game-icon">🔤</span><span class="mini-game-tag available">2–30 PLAYERS</span></div><h3>Word Scramble</h3><p>Unscramble each word before your friend and collect points.</p><button class="mini-game-button mini-open-game" data-mini-game="word">PLAY WORD SCRAMBLE →</button></article>
+  <article class="mini-game-card"><div class="mini-game-card-top"><span class="mini-game-icon">⭕</span><span class="mini-game-tag available">2 PLAYERS</span></div><h3>Tic-Tac-Toe</h3><p>Play online, take turns and start another round without making a new room.</p><button class="mini-game-button mini-open-game" data-mini-game="ttt">PLAY TIC-TAC-TOE →</button></article>
+ </div>
+</section>
     <section class="features" id="features">
         <div>
             <span>01 / COMPETE</span>
@@ -136,6 +214,46 @@
     </section>
 
         
+<section class="how-section" id="how">
+        <div class="section-heading"><span class="section-kicker">HOW IT WORKS</span><h2>Three steps. One champion.</h2><p>Getting a game going is simple.</p></div>
+        <div class="how-grid">
+            <article><span>01</span><h3>Create a room</h3><p>Choose your game settings and create a private room.</p></article>
+            <article><span>02</span><h3>Invite your friends</h3><p>Share the six-digit room code so everyone can join.</p></article>
+            <article><span>03</span><h3>Be the first to tap</h3><p>Buzz in quickly, answer correctly and earn points.</p></article>
+        </div>
+    </section>
+    </div>
+    <nav class="mobile-nav" aria-label="Mobile navigation">
+        <a class="active" href="#home"><span>⌂</span>Home</a><a href="#play"><span>＋</span>Play</a><a href="#how"><span>ⓘ</span>How to</a><a href="#game-hub"><span>▦</span>Hub</a><a href="#mini-games"><span>🎮</span>Games</a>
+    </nav>
+
+<div class="modal-overlay profile-edit-modal" id="profileEditModal" hidden>
+ <div class="modal-box profile-edit-box" role="dialog" aria-modal="true" aria-labelledby="profileEditTitle">
+  <button class="close-btn" type="button" id="profileEditCancel" aria-label="Close">×</button><div class="modal-icon">🎮</div><h2 id="profileEditTitle">EDIT YOUR PLAYER CARD</h2>
+  <form id="profileEditForm"><label for="profileEditName">Player name</label><input id="profileEditName" maxlength="20" required><label for="profileEditAvatar">Choose avatar</label><select id="profileEditAvatar"><option>🎮</option><option>⚡</option><option>🚀</option><option>🦊</option><option>🐼</option><option>🌟</option><option>🏆</option><option>🐯</option></select><button class="create-btn" type="submit">SAVE PROFILE</button></form>
+ </div>
+</div>
+<section class="game-screen" id="gameScreen" hidden aria-live="polite">
+ <header class="game-screen-header"><button type="button" class="game-screen-back" id="gameScreenBack">← BACK TO ARCADE</button><div><span class="section-kicker">FIRST TAP WINS ARCADE</span><h2 id="gameScreenTitle">Game</h2><p id="gameScreenSubtitle">Create a room or join a friend's room.</p></div></header>
+ <div class="game-screen-content">
+  <section class="arcade-room-shell">
+   <div class="arcade-room-controls arcade-room-controls-clean">
+    <label>Player name<input id="arcadePlayerName" maxlength="20" placeholder="Your name" autocomplete="nickname"></label>
+    <label id="arcadeMaxPlayersLabel">Maximum players<select id="arcadeMaxPlayers"><option value="2">2 players</option><option value="3">3 players</option><option value="4" selected>4 players</option><option value="5">5 players</option><option value="6">6 players</option><option value="7">7 players</option><option value="8">8 players</option><option value="9">9 players</option><option value="10">10 players</option><option value="11">11 players</option><option value="12">12 players</option><option value="13">13 players</option><option value="14">14 players</option><option value="15">15 players</option><option value="16">16 players</option><option value="17">17 players</option><option value="18">18 players</option><option value="19">19 players</option><option value="20">20 players</option><option value="21">21 players</option><option value="22">22 players</option><option value="23">23 players</option><option value="24">24 players</option><option value="25">25 players</option><option value="26">26 players</option><option value="27">27 players</option><option value="28">28 players</option><option value="29">29 players</option><option value="30">30 players</option></select></label>
+    <button type="button" id="arcadeCreate">CREATE ROOM</button>
+    <label id="arcadeBingoPatternLabel">Bingo win condition<select id="arcadeBingoPattern"><option value="line">Complete any line</option><option value="corners">Four corners</option><option value="full">Full card</option></select></label><label>Six-digit room code<input id="arcadeJoinCode" inputmode="numeric" maxlength="6" placeholder="Enter code"></label>
+    <button type="button" id="arcadeJoin">JOIN ROOM</button>
+   </div>
+   <p class="arcade-feedback" id="arcadeFeedback" aria-live="polite">Create a room and share its code with one friend.</p>
+   <div class="arcade-room-panel" id="arcadeRoomPanel" hidden>
+    <div class="arcade-room-top"><strong id="arcadeRoomTitle">Game room</strong><span class="arcade-room-meta"><b id="arcadePlayerCount">1/4 PLAYERS</b> · CODE: <b id="arcadeRoomCode"></b> <button type="button" id="arcadeCopyCode">COPY</button></span></div>
+    <p id="arcadeRoomStatus" aria-live="polite">Waiting for another player…</p><div id="arcadePlayers" class="arcade-players"></div>
+    <div class="arcade-room-actions"><button type="button" id="arcadeStart">START GAME</button><button type="button" id="arcadeRematch" hidden>PLAY AGAIN</button><button type="button" id="arcadeLeave" class="arcade-leave">LEAVE ROOM</button></div>
+    <div id="arcadeGameArea" class="arcade-game-area" hidden></div>
+   </div>
+  </section>
+ </div>
+</section>
 <!-- CREATE ROOM MODAL -->
 <div class="modal-overlay" id="createModal">
     <div class="modal-box">
@@ -159,13 +277,37 @@
             <div class="form-row">
                 <div>
                     <label>Maximum Players</label>
-                    <select id="maxPlayers">
+                    <select id="maxPlayers" required>
+                        <option value="1">1 Player</option>
                         <option value="2">2 Players</option>
+                        <option value="3">3 Players</option>
                         <option value="4">4 Players</option>
+                        <option value="5">5 Players</option>
                         <option value="6">6 Players</option>
+                        <option value="7">7 Players</option>
                         <option value="8" selected>8 Players</option>
+                        <option value="9">9 Players</option>
                         <option value="10">10 Players</option>
+                        <option value="11">11 Players</option>
+                        <option value="12">12 Players</option>
+                        <option value="13">13 Players</option>
+                        <option value="14">14 Players</option>
                         <option value="15">15 Players</option>
+                        <option value="16">16 Players</option>
+                        <option value="17">17 Players</option>
+                        <option value="18">18 Players</option>
+                        <option value="19">19 Players</option>
+                        <option value="20">20 Players</option>
+                        <option value="21">21 Players</option>
+                        <option value="22">22 Players</option>
+                        <option value="23">23 Players</option>
+                        <option value="24">24 Players</option>
+                        <option value="25">25 Players</option>
+                        <option value="26">26 Players</option>
+                        <option value="27">27 Players</option>
+                        <option value="28">28 Players</option>
+                        <option value="29">29 Players</option>
+                        <option value="30">30 Players</option>
                     </select>
                 </div>
 
@@ -184,10 +326,23 @@
             <select id="category">
                 <option value="mixed">Mixed Questions</option>
                 <option value="gk">General Knowledge</option>
+                <option value="india">India</option>
+                <option value="geography">Geography</option>
+                <option value="history">History</option>
+                <option value="technology">Technology</option>
+                <option value="sports">Sports</option>
                 <option value="maths">Mathematics</option>
                 <option value="science">Science</option>
                 <option value="alphabet">Alphabet Challenge</option>
                 <option value="riddles">Riddles</option>
+            </select>
+
+            <label>Question Difficulty</label>
+            <select id="difficulty">
+                <option value="mixed">Mixed Difficulty</option>
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
             </select>
 
             <label class="check-label">
@@ -338,6 +493,7 @@
             </div>
         </section>
         <div class="game-footer-note">Correct answer: +100 points · Fastest player gets the first chance</div>
+        <button type="button" class="back-dashboard-btn" id="backToDashboardBtn" hidden>BACK TO DASHBOARD <span>→</span></button>
     </main>
 </div>
 
@@ -348,10 +504,65 @@
 
     
 <script src="/socket.io/socket.io.js"></script>
+<script>
+const socket=io(); window.socket=socket;
+(function(){
+ const $=id=>document.getElementById(id),names={bingo:"Bingo Battle",reaction:"Reaction Rush",memory:"Memory Match",math:"Quick Math",word:"Word Scramble",ttt:"Tic-Tac-Toe"};
+ let selected="bingo",code=null,state=null,host=false,wasStarted=false;
+ const screen=$("gameScreen"),area=$("arcadeGameArea"),panel=$("arcadeRoomPanel"),controls=document.querySelector(".arcade-room-controls-clean"),patternSelect=$("arcadeBingoPattern"),maxPlayersSelect=$("arcadeMaxPlayers"),maxPlayersLabel=$("arcadeMaxPlayersLabel");
+ const emit=(event,data={})=>new Promise(resolve=>{if(!socket.connected)return resolve({success:false,message:"Not connected. Check the server and try again."});socket.timeout(7000).emit(event,data,(error,result)=>resolve(error?{success:false,message:"The server did not respond. Please try again."}:result||{success:false,message:"No response from the server."}));});
+ function openGame(game){
+  selected=game;state=null;code=null;panel.hidden=true;controls.hidden=false;patternSelect.closest("label").hidden=game!=="bingo";maxPlayersLabel.hidden=game==="ttt";maxPlayersSelect.value=game==="ttt"?"2":"4";$("arcadeFeedback").textContent="Choose the room size, create a room, or join a friend's six-digit code.";
+  $("gameScreenTitle").textContent=names[game];$("gameScreenSubtitle").textContent=game==="ttt"?"Two players · private room · live multiplayer":"2–30 players · private room · live multiplayer";
+  $("arcadePlayerName").value=$("profileName")?.textContent||localStorage.getItem("ftw-player-name")||"Player";
+  screen.hidden=false;document.body.classList.add("game-screen-open");window.scrollTo({top:0,behavior:"smooth"});
+ }
+ function status(message){$("arcadeRoomStatus").textContent=message;}
+ function actionButton(label,action,disabled=false){const b=document.createElement("button");b.type="button";b.textContent=label;b.disabled=disabled;b.addEventListener("click",action);return b;}
+ function render(){
+  if(!state||!code)return;
+  $("arcadeRoomPanel").hidden=false;$("arcadeRoomTitle").textContent=names[state.game];$("arcadeRoomCode").textContent=state.code;
+  status(state.status);$("arcadePlayerCount").textContent=state.players.length+"/"+state.maxPlayers+" PLAYERS";$("arcadePlayers").textContent=state.players.map(p=>p.name+(p.id===state.hostId?" · HOST":"")+" · "+(p.score||0)+" pts").join("   |   ");
+  $("arcadeStart").hidden=state.started||state.players.length<2||!host;
+  $("arcadeRematch").hidden=state.started||state.players.length<2;
+  area.hidden=!state.started&&state.game!=="ttt";area.innerHTML="";
+  const st=state.state||{};
+  if(state.game==="ttt"){
+   const turn=document.createElement("p");turn.className="arcade-turn-status";turn.textContent=state.started?(state.turn===socket.id?"YOUR TURN — MAKE A MOVE":"WAITING FOR YOUR OPPONENT"):(state.status||"Waiting for players");area.appendChild(turn);const board=document.createElement("div");board.className="arcade-ttt-board";
+   (state.board||Array(9).fill("")).forEach((mark,i)=>board.appendChild(actionButton(mark||"＋",async()=>{const r=await emit("arcade-ttt-move",{index:i});if(!r.success)status(r.message);},!state.started||state.turn!==socket.id||!!mark)));
+   area.appendChild(board);
+  }else if(state.game==="bingo"){
+   const me=state.players.find(p=>p.id===socket.id);
+   if(me?.card){const grid=document.createElement("div");grid.className="bingo-card-grid";["B","I","N","G","O"].forEach(x=>{const h=document.createElement("b");h.textContent=x;grid.appendChild(h);});me.card.flat().forEach(n=>{const b=actionButton(n,async()=>{const r=await emit("arcade-bingo-mark",{number:n});if(!r.success)status(r.message);},!state.started||n==="FREE"||!(st.drawn||[]).includes(n));if(n==="FREE"||(me.marks||[]).includes(n))b.classList.add("marked");grid.appendChild(b);});area.appendChild(grid);}
+   const called=document.createElement("div");called.className="bingo-called-number";const calledLabel=document.createElement("span");calledLabel.textContent="LAST NUMBER CALLED";const calledValue=document.createElement("strong");calledValue.textContent=st.lastNumber||"—";called.append(calledLabel,calledValue);area.appendChild(called);const info=document.createElement("p");info.className="bingo-drawn";info.textContent="Numbers called: "+(st.drawn||[]).length+" / 75 · Win: "+({line:"Any line",corners:"Four corners",full:"Full card"}[st.bingoPattern||"line"]);area.appendChild(info);const history=document.createElement("div");history.className="bingo-call-history";history.textContent=(st.drawn||[]).slice(-12).join(" · ")||"Numbers will appear here";area.appendChild(history);
+   area.appendChild(actionButton("DRAW NEXT NUMBER",async()=>{const r=await emit("arcade-bingo-draw");if(!r.success)status(r.message);},!state.started||!host));
+   area.appendChild(actionButton("CALL BINGO",async()=>{const r=await emit("arcade-bingo-claim");if(!r.success)status(r.message);},!state.started));
+  }else if(state.game==="reaction"){
+   const b=actionButton(st.phase==="go"?"TAP NOW!":st.phase==="waiting"?"WAIT FOR SIGNAL":"ROUND OVER",async()=>{const r=await emit("arcade-action",{action:"tap"});if(!r.success)status(r.message);},!state.started||!["waiting","go"].includes(st.phase));b.className="reaction-stage "+(st.phase||"");area.appendChild(b);
+  }else if(state.game==="memory"){
+   const grid=document.createElement("div");grid.className="memory-board multiplayer-memory";
+   for(let i=0;i<16;i++){const shown=(st.matched||[]).includes(i)||(st.flipped||[]).includes(i);grid.appendChild(actionButton(shown?st.deck[i]:"?",async()=>{const r=await emit("arcade-action",{action:"flip",index:i});if(!r.success)status(r.message);},!state.started||!shown&&st.turnIndex!==state.players.findIndex(p=>p.id===socket.id)||shown||(st.matched||[]).includes(i)));}
+   area.appendChild(grid);const score=document.createElement("p");score.textContent="Pairs: "+JSON.stringify(st.pairScores||{});area.appendChild(score);
+  }else if(state.game==="math"||state.game==="word"){
+   const q=document.createElement("h2");q.className=state.game==="math"?"math-question":"word-scramble";q.textContent=state.game==="math"?(st.question?.text||"Get ready"):(st.word?.scrambled||"Get ready");area.appendChild(q);
+   const progress=document.createElement("p");progress.className="arcade-round-status";progress.textContent="Round "+(st.round||1)+" / "+(st.totalRounds||10);area.appendChild(progress);
+   const form=document.createElement("form");form.className="arcade-answer-form";const input=document.createElement("input");input.className="word-answer";input.placeholder=state.game==="math"?"Enter your answer":"Type the correct word";input.autocomplete="off";input.id="arcadeAnswer";input.required=true;if(state.game==="math"){input.type="number";input.inputMode="numeric";}else{input.type="text";input.autocapitalize="characters";}const submit=actionButton("SUBMIT ANSWER",async()=>{},false);submit.type="submit";form.append(input,submit);form.addEventListener("submit",async e=>{e.preventDefault();if(!input.value.trim())return;submit.disabled=true;const r=await emit("arcade-action",{action:"answer",answer:input.value});if(!r.success){status(r.message);submit.disabled=false;input.focus();}else input.value="";});area.appendChild(form);
+  }
+ }
+ document.querySelectorAll(".mini-open-game").forEach(b=>b.addEventListener("click",()=>openGame(b.dataset.miniGame)));
+ $("arcadeCreate").addEventListener("click",async()=>{const name=$("arcadePlayerName").value.trim();localStorage.setItem("ftw-player-name",name);const r=await emit("arcade-create",{name,game:selected,bingoPattern:patternSelect.value,maxPlayers:selected==="ttt"?2:Number(maxPlayersSelect.value)});if(!r.success)return $("arcadeFeedback").textContent=r.message;code=r.code;window.currentArcadeRoomCode=code;host=true;controls.hidden=true;$("arcadeFeedback").textContent="Room created. Share the code with your friend.";});
+ $("arcadeJoin").addEventListener("click",async()=>{const name=$("arcadePlayerName").value.trim();localStorage.setItem("ftw-player-name",name);const r=await emit("arcade-join",{name,code:$("arcadeJoinCode").value.trim()});if(!r.success)return $("arcadeFeedback").textContent=r.message;code=r.code;window.currentArcadeRoomCode=code;host=false;controls.hidden=true;$("arcadeFeedback").textContent="Joined room successfully.";});
+ $("arcadeStart").addEventListener("click",async()=>{const r=await emit("arcade-start");if(!r.success)status(r.message);});
+ $("arcadeRematch").addEventListener("click",async()=>{const r=await emit("arcade-rematch");if(!r.success)status(r.message);});
+ $("arcadeLeave").addEventListener("click",async()=>{await emit("arcade-leave");code=null;window.currentArcadeRoomCode=null;state=null;panel.hidden=true;controls.hidden=false;area.hidden=true;area.innerHTML="";});
+ $("arcadeCopyCode").addEventListener("click",()=>{if(code)navigator.clipboard?.writeText(code).then(()=>$("arcadeCopyCode").textContent="COPIED").catch(()=>status("Room code: "+code));});
+ $("gameScreenBack").addEventListener("click",async()=>{if(code)await emit("arcade-leave");code=null;window.currentArcadeRoomCode=null;state=null;controls.hidden=false;screen.hidden=true;document.body.classList.remove("game-screen-open");});
+ socket.on("arcade-state",data=>{if(code&&data.code===code){if(wasStarted&&!data.started&&data.state?.winner!==undefined&&typeof window.recordArcadeMatch==="function")window.recordArcadeMatch(data.game,data.players,data.state.winner);wasStarted=data.started;state=data;host=data.hostId===socket.id;render();}});
+ socket.on("disconnect",()=>{if(code)status("Connection lost. Reconnect and rejoin the room.");});
+})();
+</script>
 
 <script>
-const socket = io();
-
 let currentRoomCode = null;
 let amHost = false;
 let currentRoomSettings = {};
@@ -361,8 +572,10 @@ function showMessage(action) {
     closeModals();
     if (action === "Create Room") {
         document.getElementById("createModal").classList.add("active");
+        document.getElementById("roomName").focus();
     } else if (action === "Join Room") {
         document.getElementById("joinModal").classList.add("active");
+        document.getElementById("joinCode").focus();
     }
 }
 
@@ -371,6 +584,18 @@ function closeModals() {
         modal.classList.remove("active");
     });
 }
+/* Dashboard navigation and keyboard-friendly modal controls. */
+document.querySelectorAll(".sidebar-link, .mobile-nav a, .topbar-play").forEach(function(link) {
+ link.addEventListener("click",function(){
+  const target=this.getAttribute("href");if(!target||!target.startsWith("#"))return;
+  document.querySelectorAll(".sidebar-link,.mobile-nav a").forEach(function(item){
+   const active=item.getAttribute("href")===target;item.classList.toggle("active",active);
+   if(active)item.setAttribute("aria-current","page");else item.removeAttribute("aria-current");
+  });
+ });
+});
+document.addEventListener("keydown",function(event){if(event.key==="Escape")closeModals();});
+
 
 document.querySelectorAll(".modal-overlay").forEach(modal => {
     modal.addEventListener("click", function(event) {
@@ -380,6 +605,7 @@ document.querySelectorAll(".modal-overlay").forEach(modal => {
 
 function enterLobby(code, host, settings) {
     currentRoomCode = code;
+    window.currentRoomCode = code;
     amHost = host;
     currentRoomSettings = settings || {};
     document.getElementById("lobbyRoomCode").textContent = code;
@@ -387,8 +613,16 @@ function enterLobby(code, host, settings) {
         currentRoomSettings.roomName || "Quiz Battle";
     document.getElementById("lobbyRounds").textContent =
         currentRoomSettings.rounds || "—";
+    const categoryLabels = {
+        mixed: "Mixed Questions", gk: "General Knowledge", india: "India",
+        geography: "Geography", history: "History", technology: "Technology",
+        sports: "Sports", maths: "Mathematics", science: "Science",
+        alphabet: "Alphabet Challenge", riddles: "Riddles"
+    };
+    const categoryLabel = categoryLabels[currentRoomSettings.category] || "Mixed Questions";
+    const difficultyLabel = (currentRoomSettings.difficulty || "mixed").replace(/^./, letter => letter.toUpperCase());
     document.getElementById("lobbyCategory").textContent =
-        currentRoomSettings.category || "Mixed";
+        categoryLabel + " · " + difficultyLabel;
     document.getElementById("lobbyStatus").textContent =
         "Waiting for players to join...";
     document.getElementById("startGameBtn").hidden = !host;
@@ -454,9 +688,11 @@ document.getElementById("createForm").addEventListener("submit", function(event)
         name: document.getElementById("hostName").value.trim(),
         maxPlayers: Number(document.getElementById("maxPlayers").value),
         rounds: Number(document.getElementById("rounds").value),
-        category: document.getElementById("category").value
+        category: document.getElementById("category").value,
+        difficulty: document.getElementById("difficulty").value
     };
 
+    window.currentPlayerName = data.name;
     socket.emit("create-room", data, function(result) {
         if (!result || !result.success) {
             alert(result?.message || "Could not create room. Please try again.");
@@ -475,6 +711,7 @@ document.getElementById("joinForm").addEventListener("submit", function(event) {
         name: document.getElementById("joinName").value.trim()
     };
 
+    window.currentPlayerName = data.name;
     socket.emit("join-room", data, function(result) {
         if (!result || !result.success) {
             alert(result?.message || "Could not join room. Please try again.");
@@ -521,10 +758,10 @@ socket.on("players-update", function(data) {
     document.getElementById("playerCount").textContent =
         `${players.length} / ${data.maxPlayers || "—"}`;
     document.getElementById("lobbyStatus").textContent =
-        players.length >= 2 ? "Players are connected. Get ready!" :
-        "Waiting for at least one friend...";
+        players.length >= 1 ? "Room is ready. The host can start the quiz!" :
+        "Waiting for a player...";
     document.getElementById("startGameBtn").disabled =
-        !amHost || players.length < 2;
+        !amHost || players.length < 1;
 });
 
 document.getElementById("copyRoomCode").addEventListener("click", async function() {
@@ -633,6 +870,12 @@ document.getElementById("gameLeaveBtn").addEventListener("click", function() {
     stopGameClock();
     socket.emit("leave-room", function() { window.location.reload(); });
 });
+document.getElementById("backToDashboardBtn").addEventListener("click", function() {
+    stopGameClock();
+    this.disabled = true;
+    this.textContent = "RETURNING...";
+    socket.emit("leave-room", function() { window.location.reload(); });
+});
 
 socket.on("game-started", function() {
     const number = document.getElementById("countdownNumber");
@@ -713,6 +956,7 @@ socket.on("answer-timeout", function(data) {
     updateGameScores(data.scores);
 });
 socket.on("game-over", function(data) {
+    recordProfileMatch(data.leaderboard || []);
     stopGameClock();
     canAnswer = false;
     setOptionsEnabled(false);
@@ -721,6 +965,7 @@ socket.on("game-over", function(data) {
     document.getElementById("buzzButton").hidden = true;
     document.getElementById("buzzerHelp").textContent = "Thanks for playing First Tap Wins!";
     document.getElementById("gameTimer").textContent = "DONE";
+    document.getElementById("backToDashboardBtn").hidden = false;
     const grid = document.getElementById("answerGrid");
     grid.innerHTML = "";
     (data.leaderboard || []).forEach(function(player, index) {
@@ -756,9 +1001,90 @@ socket.on("connect_error", function() {
     document.getElementById("lobbyStatus").textContent =
         "Connection problem. Check that the game server is running.";
 });
+/* Solo Reaction Rush mini game. */
+(function(){
+ const b=document.getElementById("reactionButton"),s=document.getElementById("reactionStage"),r=document.getElementById("reactionResult");if(!b||!s||!r)return;
+ let state="idle",start=0,timer=null,best=null;
+ b.addEventListener("click",function(){
+  if(state==="idle"){state="wait";s.textContent="Wait for BLUE…";s.className="reaction-stage waiting";b.textContent="WAIT FOR IT";timer=setTimeout(function(){state="go";start=performance.now();s.textContent="TAP NOW!";s.className="reaction-stage go";b.textContent="TAP!";},1200+Math.random()*2300);return;}
+  if(state==="wait"){clearTimeout(timer);state="idle";s.textContent="Too soon! Try again.";s.className="reaction-stage early";b.textContent="TRY AGAIN";return;}
+  if(state==="go"){const ms=Math.round(performance.now()-start);best=best===null?ms:Math.min(best,ms);state="idle";s.textContent=ms+" ms";s.className="reaction-stage result";r.textContent="This round: "+ms+" ms · Best: "+best+" ms";b.textContent="PLAY AGAIN";}
+ });
+})();
 </script>
 
 
 
+
+<script>
+/* Phase 6: local player profile, XP, achievements and match history. */
+(function(){
+ const KEY="ftw-player-profile-v1";
+ const defaults={name:"Guest Player",avatar:"🎮",xp:0,matches:0,wins:0,history:[],badges:[]};
+ let profile;
+ try{profile=Object.assign({},defaults,JSON.parse(localStorage.getItem(KEY)||"{}"));}catch{profile={...defaults};}
+ const $=id=>document.getElementById(id);
+ function level(){return Math.floor(profile.xp/250)+1;}
+ function save(){try{localStorage.setItem(KEY,JSON.stringify(profile));}catch(e){console.warn("Could not save player progress",e);}render();}
+ function unlock(id,label){if(!profile.badges.some(b=>b.id===id))profile.badges.push({id,label});}
+ function render(){
+  if(!$("profileName"))return;
+  $("profileName").textContent=profile.name;
+  $("profileAvatar").textContent=profile.avatar;
+  $("profileLevel").textContent=level();
+  $("profileXp").textContent=profile.xp;
+  $("profileMatches").textContent=profile.matches;
+  $("profileWins").textContent=profile.wins;
+  const into=profile.xp%250;
+  $("profileXpBar").style.width=(into/250*100)+"%";
+  $("profileXpBar").parentElement.setAttribute("aria-valuenow",String(into));
+  $("profileNextLevel").textContent=(250-into)+" XP to Level "+(level()+1);
+  const badges=$("profileBadges");badges.innerHTML="";
+  if(!profile.badges.length){const empty=document.createElement("span");empty.className="achievement-locked";empty.textContent="Complete your first quiz to unlock a badge";badges.appendChild(empty);}
+  profile.badges.forEach(b=>{const el=document.createElement("span");el.className="achievement-badge";el.textContent="🏅 "+b.label;badges.appendChild(el);});
+  const history=$("profileHistory");history.innerHTML="";
+  if(!profile.history.length){const li=document.createElement("li");li.textContent="No matches recorded yet.";history.appendChild(li);}
+  profile.history.slice(0,5).forEach(item=>{const li=document.createElement("li");li.textContent=item.date+" · "+item.result+" · "+item.score+" pts";history.appendChild(li);});
+ }
+ window.recordArcadeMatch=function(game,players,winnerId){
+  if(!Array.isArray(players)||!players.length)return;
+  const room=window.currentArcadeRoomCode||"";
+  const me=players.find(p=>p.id===window.socket?.id);
+  if(!me)return;
+  const won=winnerId===me.id,gained=50+(won?25:0);
+  profile.matches++;if(won)profile.wins++;profile.xp+=gained;
+  profile.history.unshift({room:room||game+"-"+Date.now(),date:new Date().toLocaleDateString(),result:won?"Won "+game:"Played "+game,score:Number(me.score)||0});
+  profile.history=profile.history.slice(0,10);
+  unlock("first-match","First Match");if(profile.wins>0)unlock("first-win","First Win");
+  if(profile.matches>=5)unlock("five-matches","5 Matches");if(profile.xp>=500)unlock("xp-500","500 XP");save();
+ };
+ window.recordProfileMatch=function(leaderboard){
+  if(!Array.isArray(leaderboard)||!leaderboard.length)return;
+  const room=window.currentRoomCode||"";
+  if(room&&profile.history.some(x=>x.room===room))return;
+  const me=leaderboard.find(p=>p.id===window.socket?.id)||leaderboard.find(p=>p.name===window.currentPlayerName);
+  if(!me)return;
+  const winner=leaderboard[0],won=winner.id===me.id;
+  const gained=50+(won?25:0);
+  profile.matches++;if(won)profile.wins++;profile.xp+=gained;
+  profile.history.unshift({room,date:new Date().toLocaleDateString(),result:won?"1st place":"Played",score:Number(me.score)||0});
+  profile.history=profile.history.slice(0,10);
+  unlock("first-match","First Match");
+  if(profile.wins>0)unlock("first-win","First Win");
+  if(profile.matches>=5)unlock("five-matches","5 Matches");
+  if(profile.xp>=500)unlock("xp-500","500 XP");
+  save();
+ };
+ const editModal=$("profileEditModal"),nameInput=$("profileEditName"),avatarSelect=$("profileEditAvatar");
+ $("profileEdit")?.addEventListener("click",()=>{nameInput.value=profile.name;avatarSelect.value=profile.avatar;editModal.hidden=false;editModal.classList.add("active");nameInput.focus();});
+ function closeProfileEditor(){editModal.hidden=true;editModal.classList.remove("active");}
+ $("profileEditCancel")?.addEventListener("click",closeProfileEditor);
+ $("profileEditForm")?.addEventListener("submit",event=>{event.preventDefault();const clean=nameInput.value.trim().slice(0,20);if(clean)profile.name=clean;profile.avatar=avatarSelect.value;save();closeProfileEditor();});
+ render();
+})();
+</script>
+
+
+</script>
 </body>
 </html>
